@@ -1,21 +1,27 @@
 Team Members:
-    - Martin Manser      -> manserm@ccs.neu.edu
-    - Amanda Georgescu   -> georgea@css.neu.edu
-    - Wil Hsie           -> wjhsie@gmail.com
-    - Chris Lyver        -> lyverc@ccs.neu.edu
 
+    Martin Manser
+    Amanda Georgescu
+    Wil Hsie
+    Chris Lyver
+
+Emails:
+    manserm@ccs.neu.edu
+    georgea@css.neu.edu
+    wjhsie@gmail.com
+    lyverc@ccs.neu.edu
 
 How to Compile and Run:
-    -
-    -
-    -
-    -
-    -
+-
+-
+-
+-
+-
 
 Third Party Software:
-    -
-    -
-    -
-    -
-    -
+-
+-
+-
+-
+-
 
