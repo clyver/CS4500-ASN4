@@ -1,1 +1,63 @@
-First Meeting 9/28:
+
+(Amanda) First Meeting 9/28:
+
+Homework 4
+
+Major Pieces:
+
+1. Write README
+2. Parse correct command lines
+3. Recognize and allow supported file formats - cannot assume that everything ending in .wav   
+   is a wave file. how do we distinguish a wave file then?
+4. Report errors for unsupported file formats
+5. Produce correct error messages
+		MATCH file1 file2 \n
+		NO MATCH \n
+
+		Both should terminate with exit status of 0
+
+		If command line or path name incorrect:
+			ERROR meaningful \n
+
+		Terminate with something other than 0
+		
+	
+6. not producing extraneous output (?)
+7. not attempting to create files outside of /tmp (?)
+8. Report non-matches for recordings of different lengths
+9. Report non-matches for recordings that do not sound alike
+
+
+Tentative Algorithm:
+1. Convert all files to same format
+2. Split up audio file into small sample sizes (sample size has to be a power of 2)
+3. FFT transform on each of these samples
+		Result will be frequency/amplitude pairs
+4. We mostly care about the highest value amplitudes or “peaks” at each frequency
+5. A fingerprint of a song refers to what frequencies are the most audible at that point in   
+     time (so each fingerprint will be a list of frequencies)
+6. Take a bunch of fingerprints (same number as sample size?)
+7. Use locally sensitive hashing on fingerprints -> fingerprints that are the same or SIMILAR  
+     will get hashed into same bucket (use nearest neighbor algorithm)
+8. Keep track of which songs have a fingerprint in each bucket
+9. When given a song to find matches to, will start to look at all buckets which contain a 
+     fingerprint from that song and see what other songs also have fingerprints contained in 
+     those buckets.  If two songs have a lot of buckets in common (over a certain threshhold) 
+     could be a match.
+10. Additionally we need to take time into account.  When we hash a fingerprint, need to keep  
+      track of what songs have a fingerprint in that bucket and what second in time that 
+      fingerprint came from. 
+***************************************************************************************************
+
+(Chris) 10/3:
+* I've copied in to our project some of his provided wav files
+* I set up wavData.py, which for now reads in a wav file and translates that
+  into raw data (unsure of details). We get the sampling rate, along with, what
+  I believe to be stereo frequency levels.
+* What I believe to be the next step is to convert our stereo data into mono 
+  data.  In addition, the obvious next step is to take this data and begin to
+  formulate a methodology of comparing 2 songs. Also, we need to link our 
+  command line argument parser to feed into the wavfile.read()
+
+
+
