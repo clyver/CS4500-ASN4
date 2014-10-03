@@ -6,8 +6,8 @@ import pdb
 #pdb.set_trace()
 
 # Wav audio files in our directory, taken from Clinger's audio samples.
-file1 = 'wayfaring.wav'
-file2 = 'excerpt0.wav'
+file1 = 'audio/wayfaring.wav'
+file2 = 'audio/excerpt0.wav'
 
 # I've run into some trouble if I don't use Clinger's supplied wav files.
 # ^Unsure why
