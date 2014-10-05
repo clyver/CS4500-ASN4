@@ -23,15 +23,20 @@ class WavData():
         self.frequencies = stereo_data
 
     def make_mono(self):
-        i = 0
+	"""
+	Take stereo data and make it into mono data
+	"""
+	mono_frequencies = []
         for sample in self.frequencies:
             # For each sample, average the stereo values
             left = sample[0]
             right = sample[1]
             mono_avg = (left + right) / 2
 
-            self.frequencies[i] = mono_avg
+            mono_frequencies.append(mono_avg)
 
-            i += 1
+	self.frequencies = mono_frequencies
+
+
 
 
