@@ -5,18 +5,33 @@ import pdb
 
 #pdb.set_trace()
 
-# Wav audio files in our directory, taken from Clinger's audio samples.
-file1 = 'audio/wayfaring.wav'
-file2 = 'audio/excerpt0.wav'
+class WavData():
+    """
+    Class contains the utilities needed to extract numerical data from WAV file
+    """
+    def __init__(self, wav_file):
+        self.file = wav_file
+        self.frequencies = []
+        self.sample_rate = None
 
-# I've run into some trouble if I don't use Clinger's supplied wav files.
-# ^Unsure why
+    def get_frequencies(self):
+        """
+        Use wavfile.read() to get sample rate and stereo data from the wav file
+        """
+        sample_rate, stereo_data = wavfile.read(self.file)
+        self.sample_rate = sample_rate
+        self.frequencies = stereo_data
 
-# Read() returns a tuple (sample rate, data read from array)
-sample_rate, stereo_data = wavfile.read(file2)
+    def make_mono(self):
+        i = 0
+        for sample in self.frequencies:
+            # For each sample, average the stereo values
+            left = sample[0]
+            right = sample[1]
+            mono_avg = (left + right) / 2
 
-print sample_rate
-# Data is a list of tuple lists, representing stero sound (left and right)
-# Print out the first ten frequency samples
-print stereo_data[:10]
+            self.frequencies[i] = mono_avg
+
+            i += 1
+
 
