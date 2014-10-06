@@ -1,7 +1,9 @@
 __author__ = 'christopherlyver'
 import numpy as np
+from numpy.fft import fft
 from scipy.io import wavfile
-import pdb
+import matplotlib.pyplot as plt
+
 
 #pdb.set_trace()
 
@@ -21,6 +23,11 @@ class WavData():
         sample_rate, stereo_data = wavfile.read(self.file)
         self.sample_rate = sample_rate
         self.frequencies = stereo_data
+	
+	# Try to plot the incoming data
+	plt.figure(1)
+	plt.title('Signal Wave...')
+	plt.plot(stereo_data)
 
     def make_mono(self):
 	"""
@@ -37,10 +44,7 @@ class WavData():
 
 	self.frequencies = mono_frequencies
 
-    def shape_up(self):
-
-	self.get_frequencies()
-	self.make_mono()
-
+    def get_fft(self):
+	self.frequencies = fft(self.frequencies)
 
 
