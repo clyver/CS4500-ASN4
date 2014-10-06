@@ -37,6 +37,10 @@ class WavData():
 
 	self.frequencies = mono_frequencies
 
+    def shape_up(self):
+
+	self.get_frequencies()
+	self.make_mono()
 
 
 
