@@ -25,7 +25,7 @@ class WavData():
         self.frequencies = data
 	
 
-	# Taken from a SO article, not sure of it's integrity or function
+
 	p = 20*np.log10(np.abs(np.fft.rfft(data[:2048, 0])))
 	f = np.linspace(0, sample_rate/2.0, len(p))
 	pl.plot(f, p)
