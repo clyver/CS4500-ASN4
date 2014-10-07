@@ -19,9 +19,7 @@ How to Compile and Run:
 -
 
 Third Party Software:
--
--
--
--
+ Our team used the Python libraries 'numpy' and scipy'.
+-These libraries gave us a basic leverage to work with wav files.
 -
 
