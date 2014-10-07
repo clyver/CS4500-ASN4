@@ -13,7 +13,7 @@ file2 = 'audio/excerpt0.wav'
 # ^Unsure why
 
 # Read() returns a tuple (sample rate, data read from array)
-sample_rate, stereo_data = wavfile.read(file2)
+sample_rate, stereo_data = wavfile.read(file1)
 
 print sample_rate
 # Data is a list of tuple lists, representing stero sound (left and right)
