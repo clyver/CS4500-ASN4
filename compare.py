@@ -16,10 +16,12 @@ class Compare():
 	self.f1 =  WavData(f1)
 	self.f1.get_frequencies()
 	self.f1.make_mono()
-	
+ 	self.f1.get_fft()
+		
 	self.f2 =  WavData(f2)
 	self.f2.get_frequencies()
 	self.f2.make_mono()
+	self.f2.get_fft()
 
 	self.limit = error_threshold
 

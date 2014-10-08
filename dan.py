@@ -20,7 +20,7 @@ else:
     # Ensure the second file argument is in the .wav format
     elif sys.argv[4][-4:] != '.wav':
         print 'Error: {arg} is not a supported format'.format(arg=sys.argv[4])
-    else:
+    elif:
         # Ensure wave.open works on both file inputs
         try:
             wave1 = wave.open(sys.argv[2], 'r')
