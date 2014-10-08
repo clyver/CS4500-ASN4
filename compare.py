@@ -61,7 +61,7 @@ class Compare():
 
 		# Go through the samples and check for diff.  If diff += 1 errors
 		while  i < len(f1_noise) and errors < limit:
-			if not self.equal(f1_noise[i], f2_noise[i], limit):
+			if not self.equal(f1_noise[i], f2_noise[i]):
 		         	errors += 1
 			i += 1
 	

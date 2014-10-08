@@ -5,6 +5,9 @@ from scipy.io import wavfile
 import matplotlib.pyplot as plt
 import pylab as pl
 import pdb
+import warnings
+
+warnings.filterwarnings("ignore")
 
 #pdb.set_trace()
 
@@ -41,6 +44,7 @@ class WavData():
 	"""
 	Take stereo data and make it into mono data
 	"""
+
 	mono_frequencies = []
         for sample in self.frequencies:
             # For each sample, average the stereo values
@@ -49,6 +53,7 @@ class WavData():
             mono_avg = (left + right) / 2
 
             mono_frequencies.append(mono_avg)
+	
 
 	self.frequencies = mono_frequencies
 
@@ -60,7 +65,6 @@ class WavData():
 	"""
 	Return the duration of the file in number of seconds
 	"""
-	pdb.set_trace()
 	samples = len(self.frequencies)
 	sample_rate = self.sample_rate
 	duration = samples/sample_rate
