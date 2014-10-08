@@ -68,10 +68,10 @@ class Compare():
 		# We've broken out of the loop due to completion or error limit reached
 		# ^Figure out which one
 		if errors > limit:
-			print "These songs are not the same, Bub"
+			print "These songs are not the same, Bub\n"
 			return False
 	
 		else:
-			print "These songs are the same, Bub"
+			print "These songs are the same, Bub\n"
 			return True
 
