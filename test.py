@@ -21,39 +21,39 @@ print test.frequencies[:10]
 """
 
 print "Two identical files that should match:\n"
-test2 = Compare('audio/A4/z01.wav', 'audio/A4/z01.wav', 10,  50)
-test2.compare()
+test1 = Compare('audio/A4/z01.wav', 'audio/A4/z01.wav', 10,  50)
+test1.compare()
 
 print "Two diff files that should match:\n" 
-test4 = Compare('audio/A4/z01.wav', 'audio/A4/z02.wav', 10, 50)
-test4.compare()
+test2 = Compare('audio/A4/z01.wav', 'audio/A4/z02.wav', 10, 50)
+test2.compare()
 
 print "Two diff files that should NOT match:\n" 
-test4 = Compare('audio/A4/z02.wav', 'audio/A4/z03.wav', 10, 50)
-test4.compare()
+test3 = Compare('audio/A4/z02.wav', 'audio/A4/z03.wav', 10, 50)
+test3.compare()
 
 print "Two diff files that should match:\n" 
 test4 = Compare('audio/A4/z03.wav', 'audio/A4/z04.wav', 10, 50)
 test4.compare()
 
 print "Two diff files that should NOT match:\n" 
-test4 = Compare('audio/A4/z04.wav', 'audio/A4/z05.wav', 10, 50)
-test4.compare()
+test5 = Compare('audio/A4/z04.wav', 'audio/A4/z05.wav', 10, 50)
+test5.compare()
 
 print "Two diff files that should match:\n" 
-test4 = Compare('audio/A4/z05.wav', 'audio/A4/z06.wav', 10, 50)
-test4.compare()
+test6 = Compare('audio/A4/z05.wav', 'audio/A4/z06.wav', 10, 50)
+test6.compare()
 
 print "Two diff files that should NOT match:\n" 
-test4 = Compare('audio/A4/z06.wav', 'audio/A4/z07.wav', 10, 50)
-test4.compare()
+test7 = Compare('audio/A4/z06.wav', 'audio/A4/z07.wav', 10, 50)
+test7.compare()
 
 print "Two diff files that should match:\n" 
-test4 = Compare('audio/A4/z07.wav', 'audio/A4/z08.wav', 10, 50)
-test4.compare()
+test8 = Compare('audio/A4/z07.wav', 'audio/A4/z08.wav', 10, 50)
+test8.compare()
 
 print "Two diff files that should NOT match:\n" 
-test4 = Compare('audio/A4/z05.wav', 'audio/A4/Sor3508.wav', 10, 50)
-test4.compare()
+test9 = Compare('audio/A4/z05.wav', 'audio/A4/Sor3508.wav', 10, 50)
+test9.compare()
 
 
