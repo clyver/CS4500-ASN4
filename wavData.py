@@ -4,6 +4,7 @@ from numpy.fft import rfft
 from scipy.io import wavfile
 import matplotlib.pyplot as plt
 import pylab as pl
+import pdb
 
 #pdb.set_trace()
 
@@ -15,6 +16,7 @@ class WavData():
         self.file = wav_file
         self.frequencies = []
         self.sample_rate = None
+	self.duration = None
 
     def get_frequencies(self):
         """
@@ -54,7 +56,16 @@ class WavData():
 	self.frequencies = rfft(self.frequencies)
 	data = self.frequencies
 
-
+    def get_duration(self):
+	"""
+	Return the duration of the file in number of seconds
+	"""
+	pdb.set_trace()
+	samples = len(self.frequencies)
+	sample_rate = self.sample_rate
+	duration = samples/sample_rate
 	
+	self.duration = duration
+
 
 
