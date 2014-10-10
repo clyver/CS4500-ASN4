@@ -60,11 +60,12 @@ class Compare():
 		i = 0
 
 		# Go through the samples and check for diff.  If diff += 1 errors
-		while  i < len(f1_noise) and errors < limit:
+		while  i < len(f1_noise):
 			if not self.equal(f1_noise[i], f2_noise[i]):
 		         	errors += 1
 			i += 1
-	
+
+		#pdb.set_trace()	
 		# We've broken out of the loop due to completion or error limit reached
 		# ^Figure out which one
 		if errors > limit:
