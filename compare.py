@@ -1,6 +1,5 @@
 __author__ = 'christopherlyver'
 from wavData import WavData
-import pdb
 
 
 class Compare():
@@ -62,7 +61,7 @@ class Compare():
 			if not self.equal(f1_noise[i], f2_noise[i]):
 		         	errors += 1
 			i += 1
-		pdb.set_trace()
+		
 		# We've broken out of the loop due \
 		# to completion or error limit reached
 		# ^Figure out which one
