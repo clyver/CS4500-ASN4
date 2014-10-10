@@ -13,13 +13,13 @@ Emails:
 
 How to Compile and Run:
 -
--
--
--
--
+-To run our program, run this command:
+-     './dan -f file1 -f file2'
+-  ^Where file1 and file2 are the paths to your audio file.
+-If there is an error with your input, you will be notified. If no input error,
+-  you will receive a notification regarding the similarity of your files.
+
 
 Third Party Software:
- Our team used the Python libraries 'numpy' and scipy'.
--These libraries gave us a basic leverage to work with wav files.
--
+-We did not use any third paty software, only the CCIS available libraries.
 
