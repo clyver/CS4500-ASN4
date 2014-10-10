@@ -14,7 +14,7 @@ How to Compile and Run:
 
 To run our program, run this command:
     './dan -f file1 -f file2'
-      ^Where file1 and file2 are the paths to your audio file.
+      ^Where file1 and file2 are the paths to your audio file (strings).
 If there is an error with your input, you will be notified. If no input error,
 you will receive a notification regarding the similarity of your files.
 
