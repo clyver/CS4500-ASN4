@@ -65,7 +65,6 @@ class Compare():
 		         	errors += 1
 			i += 1
 
-		#pdb.set_trace()	
 		# We've broken out of the loop due to completion or error limit reached
 		# ^Figure out which one
 		if errors > limit:

@@ -5,14 +5,10 @@ import wave
 from compare import Compare
 
 # Try to get a grip on the sys args.  If they are presnt, do a basic form test
-try:
-	# Check to make sure we have the correct number of args, along with '-f's
-	if len(sys.argv) != 5 or sys.argv[1] != '-f' or sys.argv[3] != '-f':
-		print 'ERROR: incorrect command line'
-		sys.exit()
-except:
+# Check to make sure we have the correct number of args, along with '-f's
+if len(sys.argv) != 5 or sys.argv[1] != '-f' or sys.argv[3] != '-f':
 	print 'ERROR: incorrect command line'
-                sys.exit()
+	sys.exit()
 file1 = sys.argv[2]
 file2 = sys.argv[4]	
 # Check to make sure the first file argument exists
@@ -31,7 +27,7 @@ elif file1[-4:] != '.wav':
 elif file2[-4:] != '.wav':
         print 'Error: {arg} is not a supported format'.format(arg=sys.argv[4])
 	sys.exit()
-elif:
+else:
 	# Ensure wave.open works on both file inputs
         try:
             wave1 = wave.open(file1, 'r')
@@ -43,4 +39,5 @@ elif:
         except TypeError:
 		print sys.argv[4] + "does not meet .wav requirement"
 		sys.exit()
-    runner = Compare(file1, file2, 10, 10)
+runner = Compare(file1, file2, 10, 10)
+runner.compare()
