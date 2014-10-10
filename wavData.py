@@ -16,7 +16,7 @@ class WavData():
     Class contains the utilities needed to extract numerical data from WAV file
     """
     def __init__(self, wav_file):
-        self.file = wav_file
+        self.file_name = wav_file
         self.frequencies = []
         self.sample_rate = None
 	self.duration = None
@@ -25,19 +25,10 @@ class WavData():
         """
         Use wavfile.read() to get sample rate and stereo data from the wav file
         """
-        sample_rate, data = wavfile.read(self.file)
+        sample_rate, data = wavfile.read(self.file_name)
         self.sample_rate = sample_rate
         self.frequencies = data
 	
-
-	"""
-	p = 20*np.log10(np.abs(np.fft.rfft(data[:2048, 0])))
-	f = np.linspace(0, sample_rate/2.0, len(p))
-	pl.plot(f, p)
-	pl.xlabel("Frequency(Hz)")
-	pl.ylabel("Power(dB)")
-	pl.show()
- 	"""
 	
 	
     def make_mono(self):
