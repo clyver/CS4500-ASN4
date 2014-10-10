@@ -39,5 +39,6 @@ else:
         except TypeError:
 		print sys.argv[4] + "does not meet .wav requirement"
 		sys.exit()
+print ".....comparing....."
 runner = Compare(file1, file2, 10, 10)
 runner.compare()
