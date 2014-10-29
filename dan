@@ -6,30 +6,49 @@ from compare import Compare
 
 # Try to get a grip on the sys args.  If they are presnt, do a basic form test
 # Check to make sure we have the correct number of args, along with '-f's
-if len(sys.argv) != 5 or sys.argv[1] != '-f' or sys.argv[3] != '-f':
+if len(sys.argv) != 5 or (sys.argv[1] != '-f' and sys.argv[1] != '-d') or (sys.argv[3] != '-f' and sys.argv[3] != '-d'):
 	print 'ERROR: incorrect command line'
 	sys.exit()
+
 file1 = sys.argv[2]
-file2 = sys.argv[4]	
+file2 = sys.argv[4]
+
+if sys.argv[1] == "-d" and os.path.isdir(file1) != True:
+	print "{arg} is not a directory".format(arg=sys.argv[2])
+if sys.argv[3] == "-d" and os.path.isdir(file2) != True:
+	print "{arg} is not a directory".format(arg=sys.argv[4])
+
+# Check if directories
+if os.path.isdir(file1):
+	# if dir found ... grab all filenames in dir and put them into buffer
+	dir1 = [ f for f in os.listdir(file1) if os.path.isfile(os.path.join(file1, f)) ]
+if os.path.isdir(file2):
+	# if dir found ... ""
+	dir2 = [ f for f in os.listdir(file2) if os.path.isfile(os.path.join(file2, f)) ]
+
 # Check to make sure the first file argument exists
-if not os.path.isfile(file1):
+if not os.path.isfile(file1) and not os.path.isdir(file1):
 	print 'Error: {arg} does not exist'.format(arg=file1)
 	sys.exit()
-# Check to make sure the seconds file argument exists
-elif not os.path.isfile(file2):
+# Check to make sure the second file argument exists
+elif not os.path.isfile(file2) and not os.path.isdir(file2):
 	print 'Error: {arg} does not exist'.format(arg=file2)
 	sys.exit()
-# Ensure the first file argument is in the .wav format
-elif file1[-4:] != '.wav':
+# Check extension .wav or .mp3 for first file
+elif os.path.isfile(file1) and file1[-4:] != '.wav' and file1[-4:] != '.mp3':
 	print 'Error: {arg} is not a supported format'.format(arg=sys.argv[2])
 	sys.exit()
-# Ensure the second file argument is in the .wav format
-elif file2[-4:] != '.wav':
+# Check extension .wav or .mp3 for second file
+elif os.path.isfile(file2) and file2[-4:] != '.wav' and file2[-4:] != '.mp3':
         print 'Error: {arg} is not a supported format'.format(arg=sys.argv[4])
 	sys.exit()
 else:
-	# Ensure wave.open works on both file inputs
-        try:
+	# if we've reached this else, then we have two files (flags -f -f)
+        # FIXME: convert .mp3s to .WAV
+	# else it's a .wav, check to verify .wav format
+	
+	"""
+	try:
             wave1 = wave.open(file1, 'r')
         except TypeError:
 		print "{arg} does not meet .wav requirement".format(arg=sys.argv[2])
@@ -39,6 +58,28 @@ else:
         except TypeError:
 		print sys.argv[4] + "does not meet .wav requirement"
 		sys.exit()
+	"""
+
+# FOR TESTING PURPOSES
+# Print out our current data
+if os.path.isfile(file1):
+	print "file1:"
+	print file1
+if os.path.isdir(file1):
+	print "dir1:"
+	print dir1
+if os.path.isfile(file2):
+	print "file2:"
+	print file2
+if os.path.isdir(file2):
+	print "dir2:"
+	print dir2
+
+
+
+
+"""
 print ".....comparing....."
 runner = Compare(file1, file2, 10, 10)
 runner.compare()
+"""
