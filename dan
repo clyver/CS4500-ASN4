@@ -10,36 +10,36 @@ if len(sys.argv) != 5 or (sys.argv[1] != '-f' and sys.argv[1] != '-d') or (sys.a
 	print 'ERROR: incorrect command line'
 	sys.exit()
 
-file1 = sys.argv[2]
-file2 = sys.argv[4]
+input1 = sys.argv[2]
+input2 = sys.argv[4]
 
-if sys.argv[1] == "-d" and os.path.isdir(file1) != True:
+if sys.argv[1] == "-d" and os.path.isdir(input1) != True:
 	print "{arg} is not a directory".format(arg=sys.argv[2])
-if sys.argv[3] == "-d" and os.path.isdir(file2) != True:
+if sys.argv[3] == "-d" and os.path.isdir(input2) != True:
 	print "{arg} is not a directory".format(arg=sys.argv[4])
 
 # Check if directories
-if os.path.isdir(file1):
+if os.path.isdir(input1):
 	# if dir found ... grab all filenames in dir and put them into buffer
-	dir1 = [ f for f in os.listdir(file1) if os.path.isfile(os.path.join(file1, f)) ]
-if os.path.isdir(file2):
+	dir1 = [ f for f in os.listdir(input1) if os.path.isfile(os.path.join(input1, f)) ]
+if os.path.isdir(input2):
 	# if dir found ... ""
-	dir2 = [ f for f in os.listdir(file2) if os.path.isfile(os.path.join(file2, f)) ]
+	dir2 = [ f for f in os.listdir(input2) if os.path.isfile(os.path.join(input2, f)) ]
 
 # Check to make sure the first file argument exists
-if not os.path.isfile(file1) and not os.path.isdir(file1):
-	print 'Error: {arg} does not exist'.format(arg=file1)
+if not os.path.isfile(input1) and not os.path.isdir(input1):
+	print 'Error: {arg} does not exist'.format(arg=input1)
 	sys.exit()
 # Check to make sure the second file argument exists
-elif not os.path.isfile(file2) and not os.path.isdir(file2):
-	print 'Error: {arg} does not exist'.format(arg=file2)
+elif not os.path.isfile(iput2) and not os.path.isdir(ipnut2):
+	print 'Error: {arg} does not exist'.format(arg=input2)
 	sys.exit()
 # Check extension .wav or .mp3 for first file
-elif os.path.isfile(file1) and file1[-4:] != '.wav' and file1[-4:] != '.mp3':
+elif os.path.isfile(input1) and input1[-4:] != '.wav' and input1[-4:] != '.mp3':
 	print 'Error: {arg} is not a supported format'.format(arg=sys.argv[2])
 	sys.exit()
 # Check extension .wav or .mp3 for second file
-elif os.path.isfile(file2) and file2[-4:] != '.wav' and file2[-4:] != '.mp3':
+elif os.path.isfile(input2) and input2[-4:] != '.wav' and inpnut2[-4:] != '.mp3':
         print 'Error: {arg} is not a supported format'.format(arg=sys.argv[4])
 	sys.exit()
 else:
@@ -49,12 +49,12 @@ else:
 	
 	"""
 	try:
-            wave1 = wave.open(file1, 'r')
+            wave1 = wave.open(input1, 'r')
         except TypeError:
 		print "{arg} does not meet .wav requirement".format(arg=sys.argv[2])
 		sys.exit()	
         try:
-		wave2 = wave.open(file2, 'r')
+		wave2 = wave.open(input2, 'r')
         except TypeError:
 		print sys.argv[4] + "does not meet .wav requirement"
 		sys.exit()
@@ -62,33 +62,33 @@ else:
 
 # FOR TESTING PURPOSES
 # Print out our current data
-if os.path.isfile(file1):
+if os.path.isfile(input1):
 	print "file1:"
-	print file1
-	if (file1.endswith(".mp3")):
+	print input1
+	if (input1.endswith(".mp3")):
 		# Conver to wav
-		os.system("/course/cs4500f14/bin/lame --decode %s" % (file1))
+		os.system("/course/cs4500f14/bin/lame --decode %s" % (input1))
 	file1 += ".wav"
-if os.path.isdir(file1):
+if os.path.isdir(input1):
 	print "dir1:"
 	print dir1
 	for f in dir1:
 		if (f.endswith(".mp3")):
-			os.system("/course/cs4500f14/bin/lame --decode %s" % (file1 + "/" + f))
+			os.system("/course/cs4500f14/bin/lame --decode %s" % (input1 + "/" + f))
 			f += ".wav"
-if os.path.isfile(file2):
+if os.path.isfile(input2):
 	print "file2:"
-	print file2
-	if (file2.endswith(".mp3")):
+	print input2
+	if (input2.endswith(".mp3")):
 		# Conver to wav
-		os.system("/course/cs4500f14/bin/lame --decode %s" % (file2))
-	file2 += ".wav"
-if os.path.isdir(file2):
+		os.system("/course/cs4500f14/bin/lame --decode %s" % (input2))
+	input2 += ".wav"
+if os.path.isdir(input2):
 	print "dir2:"
 	print dir2
 	for f in dir2:
 		if (f.endswith(".mp3")):
-			os.system("/course/cs4500f14/bin/lame --decode %s" % (file2 + "/" + f))
+			os.system("/course/cs4500f14/bin/lame --decode %s" % (input2 + "/" + f))
 			f += ".wav"
 
 
