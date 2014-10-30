@@ -65,16 +65,31 @@ else:
 if os.path.isfile(file1):
 	print "file1:"
 	print file1
+	if (file1.endswith(".mp3")):
+		# Conver to wav
+		os.system("/course/cs4500f14/bin/lame --decode %s" % (file1))
+	file1 += ".wav"
 if os.path.isdir(file1):
 	print "dir1:"
 	print dir1
+	for f in dir1:
+		if (f.endswith(".mp3")):
+			os.system("/course/cs4500f14/bin/lame --decode %s" % (file1 + "/" + f))
+			f += ".wav"
 if os.path.isfile(file2):
 	print "file2:"
 	print file2
+	if (file2.endswith(".mp3")):
+		# Conver to wav
+		os.system("/course/cs4500f14/bin/lame --decode %s" % (file2))
+	file2 += ".wav"
 if os.path.isdir(file2):
 	print "dir2:"
 	print dir2
-
+	for f in dir2:
+		if (f.endswith(".mp3")):
+			os.system("/course/cs4500f14/bin/lame --decode %s" % (file2 + "/" + f))
+			f += ".wav"
 
 
 
