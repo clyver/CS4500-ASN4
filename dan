@@ -31,7 +31,7 @@ if not os.path.isfile(input1) and not os.path.isdir(input1):
 	print 'Error: {arg} does not exist'.format(arg=input1)
 	sys.exit()
 # Check to make sure the second file argument exists
-elif not os.path.isfile(iput2) and not os.path.isdir(ipnut2):
+elif not os.path.isfile(input2) and not os.path.isdir(input2):
 	print 'Error: {arg} does not exist'.format(arg=input2)
 	sys.exit()
 # Check extension .wav or .mp3 for first file
