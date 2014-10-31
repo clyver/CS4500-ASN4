@@ -3,98 +3,165 @@ import sys
 import os
 import wave
 from compare import Compare
+import pdb
+import sndhdr
+
+def is_mp3(file_path, directory=''):
+	"""
+	Given this path, True if ends in .mp3 and data reads as mp3
+	If there is an input directory, make sure to tag it on to the path
+	"""
+	if directory:
+		file_path = directory + file_path
+	result = sndhdr.what(file_path)	
+	# Apparently mp3s aren't supposed to return a header
+	if not result and file_path.endswith('.mp3'):
+		return True
+	else:
+		return False
+	
+
+def is_wav(file_path, directory=''):
+	"""
+	Given this path, True if ends in .wav, and data reads as wav
+	If there is an input directory, update the path
+	"""
+	if directory:
+		file_path = directory + file_path
+        result = sndhdr.what(file_path)
+	if file_path.endswith('.wav') and 'wav' in result:
+                return True
+        else:
+                return False
+
+def mp3_to_wav(file_path, directory=''):
+	"""
+	Given this mp3 file, convert it to wav
+	"""
+	if directory:
+		file_path = directory + file_path
+	os.system("/course/cs4500f14/bin/lame --decode --silent {file}".format(file=file_path))
+	return file_path + '.wav'
 
 # Try to get a grip on the sys args.  If they are presnt, do a basic form test
 # Check to make sure we have the correct number of args, along with '-f's
 if len(sys.argv) != 5 or (sys.argv[1] != '-f' and sys.argv[1] != '-d') or (sys.argv[3] != '-f' and sys.argv[3] != '-d'):
-	print 'ERROR: incorrect command line'
+	print 'ERROR: Incorrect command line. \n'
 	sys.exit()
 
-file1 = sys.argv[2]
-file2 = sys.argv[4]
+input1 = sys.argv[2]
+input2 = sys.argv[4]
 
-if sys.argv[1] == "-d" and os.path.isdir(file1) != True:
-	print "{arg} is not a directory".format(arg=sys.argv[2])
-if sys.argv[3] == "-d" and os.path.isdir(file2) != True:
-	print "{arg} is not a directory".format(arg=sys.argv[4])
+# Do some initial flag tests to ensure the flag corresponds to the input
+if sys.argv[1] == "-d" and not os.path.isdir(input1):
+	print "ERROR: {arg} is not a directory \n".format(arg=sys.argv[2])
+	sys.exit()
+if sys.argv[3] == "-d" and not os.path.isdir(input2):
+	print "ERROR: {arg} is not a directory \n".format(arg=sys.argv[4])
+	sys.exit()
 
-# Check if directories
-if os.path.isdir(file1):
-	# if dir found ... grab all filenames in dir and put them into buffer
-	dir1 = [ f for f in os.listdir(file1) if os.path.isfile(os.path.join(file1, f)) ]
-if os.path.isdir(file2):
+if sys.argv[1] == '-f' and os.path.isdir(input1):
+	print "ERROR: {arg} is not a file \n".format(arg=sys.argv[2])
+	sys.exit()
+
+if sys.argv[1] == '-f' and os.path.isdir(input2):
+	print "ERROR: {arg} is not a file \n".format(arg=sys.argv[2])
+	sys.exit()
+
+
+#The array of songs we feed to the comparator
+compare_list1 = []
+compare_list2 = []
+
+# Flags if each input is a directory or not
+input1_is_dir = False
+input2_is_dir = False
+
+# Check if input 1 is a directory
+if os.path.isdir(input1):
+	# If dir found ... grab all filenames in dir and put them into buffer
+	input1_is_dir = True
+	# For f in dir, append on to list if f exists and is compatible 
+	for f in os.listdir(input1):
+		# Do an initial test to ensure the file exists
+		if not os.path.isfile(os.path.join(input1, f)):
+			print 'ERRROR: {arg} does not exit \n'.format(arg=input1+f)
+			sys.exit()
+		# If this file is a wav, throw it on
+		if is_wav(f, input1):
+			compare_list1.append(input1+f)
+		# If the file is an mp3, convert it and throw it on
+		elif is_mp3(f, input1):
+			f = mp3_to_wav(f, input1)
+			compare_list1.append(f)
+		# Else the file is in a bad format
+		else:
+			print "ERROR: {arg} is not in a compatible format \n".format(arg=input1+f)
+			sys.exit()
+
+# Check if input2 is a directory
+if os.path.isdir(input2):
 	# if dir found ... ""
-	dir2 = [ f for f in os.listdir(file2) if os.path.isfile(os.path.join(file2, f)) ]
+	input2_is_dir = True
+	# The array we'll compose
+	compare_list2 = []
+        # For f in dir, append on to list if f exists and is compatible 
+        for f in os.listdir(input2):
+		# Check to make sure the file exists
+                if not os.path.isfile(os.path.join(input2, f)):
+			print 'ERROR: {arg} does not exist \n'.format(arg=input2+f)
+		# If it's a wav, throw it on
+		if is_wav(f,input2):
+                       compare_list2.append(input2+f)
+		# If it's an mp3, convert it to wav
+                elif is_mp3(f, input2):
+			f = mp3_to_wav(f, input2)
+			compare_list2.append(f)
+		# Else, the file is not a good format
+		else:
+		 	print "ERROR: {arg} is not in a compatible format \n".format(arg=input2+f)
+                        sys.exit()
 
-# Check to make sure the first file argument exists
-if not os.path.isfile(file1) and not os.path.isdir(file1):
-	print 'Error: {arg} does not exist'.format(arg=file1)
-	sys.exit()
-# Check to make sure the second file argument exists
-elif not os.path.isfile(file2) and not os.path.isdir(file2):
-	print 'Error: {arg} does not exist'.format(arg=file2)
-	sys.exit()
-# Check extension .wav or .mp3 for first file
-elif os.path.isfile(file1) and file1[-4:] != '.wav' and file1[-4:] != '.mp3':
-	print 'Error: {arg} is not a supported format'.format(arg=sys.argv[2])
-	sys.exit()
-# Check extension .wav or .mp3 for second file
-elif os.path.isfile(file2) and file2[-4:] != '.wav' and file2[-4:] != '.mp3':
-        print 'Error: {arg} is not a supported format'.format(arg=sys.argv[4])
-	sys.exit()
-else:
-	# if we've reached this else, then we have two files (flags -f -f)
-        # FIXME: convert .mp3s to .WAV
-	# else it's a .wav, check to verify .wav format
-	
-	"""
-	try:
-            wave1 = wave.open(file1, 'r')
-        except TypeError:
-		print "{arg} does not meet .wav requirement".format(arg=sys.argv[2])
-		sys.exit()	
-        try:
-		wave2 = wave.open(file2, 'r')
-        except TypeError:
-		print sys.argv[4] + "does not meet .wav requirement"
+# If we know input1 is not a directory, ensure it exists and has propper format
+if not input1_is_dir:
+
+	# Check to make sure the second file argument exists
+        if not os.path.isfile(input1):
+                print 'ERROR: {arg} does not exist \n'.format(arg=input1)
+                sys.exit()
+        # If it's a wav tag it on
+        if is_wav(input1):
+                compare_list1.append(input1)
+
+        # If it's an mp3 convert and tag on
+        elif is_mp3(input1):
+                f = mp3_to_wav(input1)
+                compare_list1.append(f)
+        else:
+                print 'ERROR: {arg} is not a supported format \n'.format(arg=sys.input1)
+                sys.exit()
+
+# If we know input2 is not a directory, ensure it exists and has propper format
+if not input2_is_dir:
+	# Check to make sure the second file argument exists
+	if not os.path.isfile(input2):
+		print 'ERROR: {arg} does not exist \n'.format(arg=input2)
 		sys.exit()
-	"""
+	# If it's a wav tag it on
+	if is_wav(input2):
+		compare_list2.append(input2)
 
-# FOR TESTING PURPOSES
-# Print out our current data
-if os.path.isfile(file1):
-	print "file1:"
-	print file1
-	if (file1.endswith(".mp3")):
-		# Conver to wav
-		os.system("/course/cs4500f14/bin/lame --decode %s" % (file1))
-	file1 += ".wav"
-if os.path.isdir(file1):
-	print "dir1:"
-	print dir1
-	for f in dir1:
-		if (f.endswith(".mp3")):
-			os.system("/course/cs4500f14/bin/lame --decode %s" % (file1 + "/" + f))
-			f += ".wav"
-if os.path.isfile(file2):
-	print "file2:"
-	print file2
-	if (file2.endswith(".mp3")):
-		# Conver to wav
-		os.system("/course/cs4500f14/bin/lame --decode %s" % (file2))
-	file2 += ".wav"
-if os.path.isdir(file2):
-	print "dir2:"
-	print dir2
-	for f in dir2:
-		if (f.endswith(".mp3")):
-			os.system("/course/cs4500f14/bin/lame --decode %s" % (file2 + "/" + f))
-			f += ".wav"
+	# If it's an mp3 convert and tag on
+	elif is_mp3(input2):
+		f = mp3_to_wav(input2)
+		compare_list2.append(f)
+	else:
+        	print 'ERROR: {arg} is not a supported format \n'.format(arg=input2)
+		sys.exit()
+
+for i in compare_list2: 
+	for f in compare_list1:
+		runner = Compare(f, i, 10, 10)
+		runner.compare()
 
 
-
-"""
-print ".....comparing....."
-runner = Compare(file1, file2, 10, 10)
-runner.compare()
-"""

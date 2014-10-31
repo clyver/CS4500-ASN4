@@ -43,7 +43,7 @@ class Compare():
 	
 	# Do an intitial test to make sure the files are the same duration
 	if self.f1.duration != self.f2.duration:
-		print "These songs are not the same duration, and thus differ"
+		#print "These songs are not the same duration, and thus differ"
 		return False
 	else:
 		# They are the same duration, compare the samples
@@ -65,15 +65,8 @@ class Compare():
 		# We've broken out of the loop due \
 		# to completion or error limit reached
 		# ^Figure out which one
-		if errors > limit:
-			print "The songs {f1} and {f2} are NOT the same.\n"\
-				.format(f1=self.f1.file_name,\
-				        f2=self.f2.file_name)
-			return False
-	
-		else:
-			print "The songs {f1} and {f2} are the same.\n"\
-				.format(f1=self.f1.file_name, 
-                                        f2=self.f2.file_name)
+		
+		if errors < limit:	
+			print "MATCH {f1} {f2}\n".format(f1=self.f1.file_name, f2=self.f2.file_name)
 			return True
 
