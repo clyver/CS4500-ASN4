@@ -2,30 +2,49 @@
 import sys
 import os
 import wave
-import subprocess
+import subprocess as sub
 from compare import Compare
 import pdb
+import sndhdr
 
-pdb.set_trace()
-def is_mp3(file_path):
+
+def is_mp3(file_path, directory=''):
 	"""
 	Given this path, True if ends in .mp3 and data reads as mp3
+	If there is an input directory, make sure to tag it on to the path
 	"""
-	subprocess_output = subprocess.check_output(['file', '-b', file_path])
-	if file_path[-4:] == '.mp3' and 'layer III' in subprocess_output:
+	if directory:
+		file_path = directory + file_path
+	result = sndhdr.what(file_path)	
+	# Apparently mp3s aren't supposed to return a header
+	if not result and file_path[-4] == '.mp3':
 		return True
 	else:
 		return False
+	
 
-def is_wav(file_path):
+def is_wav(file_path, directory=''):
 	"""
 	Given this path, True if ends in .wav, and data reads as wav
+	If there is an input directory, update the path
 	"""
-	subprocess_output = subprocess.check_output(['file', '-b', file_path])
-        if file_path[-4:] == '.wav' and 'WAVE audio' in subprocess_output:
+	if directory:
+		file_path = directory + file_path
+        result = sndhdr.what(file_path)
+	if file_path[-4:] == '.wav' and 'wav' in result:
                 return True
         else:
                 return False
+
+def mp3_to_wav(file_path, directory=''):
+	"""
+	Given this mp3 file, convert it to wav
+	"""
+	if directory:
+		file_path = directory + file_path
+
+	 os.system("/course/cs4500f14/bin/lame --decode {file}".format(file=file_path))
+
 
 # Try to get a grip on the sys args.  If they are presnt, do a basic form test
 # Check to make sure we have the correct number of args, along with '-f's
@@ -36,10 +55,22 @@ if len(sys.argv) != 5 or (sys.argv[1] != '-f' and sys.argv[1] != '-d') or (sys.a
 input1 = sys.argv[2]
 input2 = sys.argv[4]
 
+# Do some initial flag tests to ensure the flag corresponds to the input
 if sys.argv[1] == "-d" and not os.path.isdir(input1):
 	print "ERROR: {arg} is not a directory \n".format(arg=sys.argv[2])
+	sys.exit()
 if sys.argv[3] == "-d" and not os.path.isdir(input2):
 	print "ERROR: {arg} is not a directory \n".format(arg=sys.argv[4])
+	sys.exit()
+
+if sys.argv[1] == '-f' and os.path.isdir(input1):
+	print "ERROR: {arg} is not a file \n".format(arg=sys.argv[2])
+	sys.exit()
+
+if sys.argv[1] == '-f' and os.path.isdir(input2):
+	print "ERROR: {arg} is not a file \n".format(arg=sys.argv[2])
+	sys.exit()
+
 
 #The array of songs we feed to the comparator
 compare_list1 = []
@@ -55,10 +86,20 @@ if os.path.isdir(input1):
 	input1_is_dir = True
 	# For f in dir, append on to list if f exists and is compatible 
 	for f in os.listdir(input1):
-		if os.path.isfile(os.path.join(input1, f)) and is_mp3(f) or is_wav(f):
+		# Do an initial test to ensure the file exists
+		if not os.path.isfile(os.path.join(input1, f)):
+			print 'ERRROR: {arg} does not exit \n'.format(arg=input1+f)
+			sys.exit()
+		# If this file is a wav, throw it on
+		if is_wav(f, input1):
 			compare_list1.append(f)
+		# If the file is an mp3, convert it and throw it on
+		if is_mp3(f, input2):
+			f = mp3_to_wav(f, input1)
+			compare_list1.append(f)
+		# Else the file is in a bad format
 		else:
-			print "ERROR: {arg} is not in a compatible format \n".format(arg=f)
+			print "ERROR: {arg} is not in a compatible format \n".format(arg=input1+f)
 			sys.exit()
 	 
 if os.path.isdir(input2):
@@ -68,10 +109,19 @@ if os.path.isdir(input2):
 	compare_list2 = []
         # For f in dir, append on to list if f exists and is compatible 
         for f in os.listdir(input2):
-                if os.path.isfile(os.path.join(input2, f)) and (is_mp3(f) or is_wav(f)):
+		# Check to make sure the file exists
+                if not os.path.isfile(os.path.join(input2, f)):
+			print 'ERROR: {arg} does not exist \n'.format(arg=input2+f)
+		# If it's a wav, throw it on
+		if is_wav(f,input2):
                        compare_list2.append(f)
-                else:
-                        print "ERROR: {arg} is not in a compatible format \n".format(arg=f)
+		# If it's an mp3, convert it to wav
+                if is_mp3(f, input2):
+			f = mp3_to_wav(f, input2)
+			compare_list2.append(f)
+		# Else, the file is not a good format
+		else:
+		 	print "ERROR: {arg} is not in a compatible format \n".format(arg=input2+f)
                         sys.exit()
 
 # If we know input1 is not a directory, ensure it exists and has propper format
@@ -83,6 +133,7 @@ if not input1_is_dir:
 		sys.exit()
 	if not (is_mp3(input1) or is_wav(input1)):
 		print 'ERROR: {arg} is not in a compatibile format'.format(arg=input1)
+		sys.exit()
 	
 	# Even though it's just one element, we append it on.
 	compare_list1.append(input1)
