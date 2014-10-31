@@ -6,18 +6,16 @@ from compare import Compare
 import pdb
 import sndhdr
 
-#pdb.set_trace()
 def is_mp3(file_path, directory=''):
 	"""
 	Given this path, True if ends in .mp3 and data reads as mp3
 	If there is an input directory, make sure to tag it on to the path
 	"""
-	pdb.set_trace()
 	if directory:
 		file_path = directory + file_path
 	result = sndhdr.what(file_path)	
 	# Apparently mp3s aren't supposed to return a header
-	if not result and file_path[-4:] == '.mp3':
+	if not result and file_path.endswith('.mp3'):
 		return True
 	else:
 		return False
@@ -31,7 +29,7 @@ def is_wav(file_path, directory=''):
 	if directory:
 		file_path = directory + file_path
         result = sndhdr.what(file_path)
-	if file_path[-4:] == '.wav' and 'wav' in result:
+	if file_path.endswith('.wav') and 'wav' in result:
                 return True
         else:
                 return False
@@ -42,9 +40,8 @@ def mp3_to_wav(file_path, directory=''):
 	"""
 	if directory:
 		file_path = directory + file_path
-	return "test mp3"
-	# os.system("/course/cs4500f14/bin/lame --decode {file}".format(file=file_path))
-
+	os.system("/course/cs4500f14/bin/lame --decode --silent {file}".format(file=file_path))
+	return file_path + '.wav'
 
 # Try to get a grip on the sys args.  If they are presnt, do a basic form test
 # Check to make sure we have the correct number of args, along with '-f's
@@ -92,9 +89,9 @@ if os.path.isdir(input1):
 			sys.exit()
 		# If this file is a wav, throw it on
 		if is_wav(f, input1):
-			compare_list1.append(f)
+			compare_list1.append(input1+f)
 		# If the file is an mp3, convert it and throw it on
-		if is_mp3(f, input2):
+		elif is_mp3(f, input1):
 			f = mp3_to_wav(f, input1)
 			compare_list1.append(f)
 		# Else the file is in a bad format
@@ -115,9 +112,9 @@ if os.path.isdir(input2):
 			print 'ERROR: {arg} does not exist \n'.format(arg=input2+f)
 		# If it's a wav, throw it on
 		if is_wav(f,input2):
-                       compare_list2.append(f)
+                       compare_list2.append(input2+f)
 		# If it's an mp3, convert it to wav
-                if is_mp3(f, input2):
+                elif is_mp3(f, input2):
 			f = mp3_to_wav(f, input2)
 			compare_list2.append(f)
 		# Else, the file is not a good format
@@ -162,11 +159,9 @@ if not input2_is_dir:
         	print 'ERROR: {arg} is not a supported format \n'.format(arg=input2)
 		sys.exit()
 
-print compare_list1
-print compare_list2
+for i in compare_list2: 
+	for f in compare_list1:
+		runner = Compare(f, i, 10, 10)
+		runner.compare()
 
-"""
-print ".....comparing....."
-runner = Compare(file1, file2, 10, 10)
-runner.compare()
-"""
+
