@@ -179,7 +179,7 @@ if not input2_is_dir:
 for i in compare_list2: 
 	for f in compare_list1:
 		runner = Compare(f, i, 10, 10)
-		runner.compare(1)
+		runner.compare()
 
 # We go through tmp and delete the files we created 
 files = glob.glob('tmp/*')
