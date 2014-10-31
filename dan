@@ -155,40 +155,6 @@ if not input2_is_dir:
 
 print compare_list1
 print compare_list2
-	
-"""
-# FOR TESTING PURPOSES
-# Print out our current data
-if os.path.isfile(input1):
-	print "file1:"
-	print input1
-	if (input1.endswith(".mp3")):
-		# Convert to wav
-		os.system("/course/cs4500f14/bin/lame --decode %s" % (input1))
-	input1 += ".wav"
-if os.path.isdir(input1):
-	print "dir1:"
-	print dir1
-	for f in dir1:
-		if (f.endswith(".mp3")):
-			os.system("/course/cs4500f14/bin/lame --decode %s" % (input1 + "/" + f))
-			f += ".wav"
-if os.path.isfile(input2):
-	print "file2:"
-	print input2
-	if (input2.endswith(".mp3")):
-		# Convert to wav
-		os.system("/course/cs4500f14/bin/lame --decode %s" % (input2))
-	input2 += ".wav"
-if os.path.isdir(input2):
-	print "dir2:"
-	print dir2
-	for f in dir2:
-		if (f.endswith(".mp3")):
-			os.system("/course/cs4500f14/bin/lame --decode %s" % (input2 + "/" + f))
-			f += ".wav"
-
-"""
 
 """
 print ".....comparing....."
