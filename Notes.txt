@@ -59,5 +59,12 @@ Tentative Algorithm:
   formulate a methodology of comparing 2 songs. Also, we need to link our 
   command line argument parser to feed into the wavfile.read()
 
+**************************************************************************************************
+(Chris 10/31)
+
+* Allow for file and directory input
+* Our comparator is still weak
+
+
 
 
