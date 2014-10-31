@@ -12,7 +12,9 @@ Emails:
 
 How to Compile and Run:
 
-To this program and compare your WAV files, run one of the following commands:
+  To this program and compare your WAV files,
+  run one of the following commands:
+
     ./dan -f <pathname> -f <pathname>
     ./dan -d <pathname> -d <pathname>
     ./dan -f <pathname> -d <pathname>
@@ -26,8 +28,12 @@ To this program and compare your WAV files, run one of the following commands:
    file system and contains nothing but files whose pathnames
    would be legal following a "-f" option.
 
+   If two audio files match, you will be notified by 'MATCH' along with 
+   the file names.   
+
    We assume the user has all the necessary permissions.
 
 Third Party Software:
-    We did not use any third paty software, only the CCIS available libraries.
+    We did not use any third paty software,
+     only the CCIS available libraries.
 

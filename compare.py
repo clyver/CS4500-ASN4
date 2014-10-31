@@ -1,4 +1,4 @@
-__author__ = 'christopherlyver'
+uthor__ = 'christopherlyver'
 from wavData import WavData
 
 
@@ -69,4 +69,3 @@ class Compare():
 		if errors < limit:	
 			print "MATCH {f1} {f2}\n".format(f1=self.f1.file_name, f2=self.f2.file_name)
 			return True
-
