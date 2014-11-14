@@ -1,4 +1,4 @@
-uthor__ = 'christopherlyver'
+author__ = 'christopherlyver'
 import numpy as np
 from numpy.fft import rfft
 from scipy.io import wavfile
@@ -21,6 +21,11 @@ class WavData():
         self.sample_rate = None
 	self.duration = None
 
+    def short_name(self):
+	# sometimes we'll want quick access to the file's short name, not path
+	name_list = self.file_name.rsplit('/', 1)
+	return name_list[1]
+	
     def get_frequencies(self):
         """
         Use wavfile.read() to get sample rate and stereo data from the wav file
@@ -49,8 +54,21 @@ class WavData():
 	self.frequencies = mono_frequencies
 
     def get_fft(self):
-	self.frequencies = rfft(self.frequencies)
-	data = self.frequencies
+	# Create a list of 20 min values from the wav data
+	count = 0
+	min_list = []
+	while(count < 20):
+		# Grab min
+		min_list.append(np.amin(self.frequencies))
+		# Pop min off list
+		where_min = np.where(self.frequencies==np.amin(self.frequencies))
+		self.frequencies = np.delete(self.frequencies, where_min)
+		count += 1	
+
+	rfft_min_list = []
+	for x in min_list:
+		rfft_min_list.append(rfft([x]))
+	print rfft_min_list
 
     def get_duration(self):
 	"""
