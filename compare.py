@@ -69,5 +69,5 @@ class Compare():
 		# ^Figure out which one
 		
 		if errors < limit:	
-			print "MATCH {f1} {f2}".format(f1=self.f1.file_name, f2=self.f2.file_name)
+			print "MATCH {f1} {f2}".format(f1=self.f1.short_name(), f2=self.f2.short_name())
 			return True

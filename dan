@@ -23,7 +23,7 @@ def is_mp3(file_path, directory=''):
 		return True
 	else:
 		return False
-	
+
 
 def is_wav(file_path, directory=''):
 	"""
