@@ -16,11 +16,13 @@ class Compare():
 	self.f1.get_frequencies()
 	self.f1.get_duration()
 	self.f1.make_mono()
-		
+	self.f1.get_fft()
+			
 	self.f2 =  WavData(f2)
 	self.f2.get_frequencies()
 	self.f2.get_duration()
 	self.f2.make_mono()
+	self.f2.get_fft()
 
 	self.limit = alloted_diff
 	self.deviation_limit = equal_threshold
@@ -67,5 +69,5 @@ class Compare():
 		# ^Figure out which one
 		
 		if errors < limit:	
-			print "MATCH {f1} {f2}\n".format(f1=self.f1.file_name, f2=self.f2.file_name)
+			print "MATCH {f1} {f2}".format(f1=self.f1.file_name, f2=self.f2.file_name)
 			return True
