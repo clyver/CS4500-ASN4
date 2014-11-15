@@ -17,26 +17,31 @@ class WavData():
     """
     def __init__(self, wav_file):
         self.file_name = wav_file
-        self.frequencies = []
-        self.sample_rate = None
+        self.sample_rate, self.frequencies = wavfile.read(wav_file)
 	self.duration = None
+
+    def fft_to_freq(self, val):
+	return abs(val * self.sample_rate)/100000    
 
     def short_name(self):
 	# sometimes we'll want quick access to the file's short name, not path
 	name_list = self.file_name.rsplit('/', 1)
 	return name_list[1]
 	
-    def get_frequencies(self):
-        """
-        Use wavfile.read() to get sample rate and stereo data from the wav file
-        """
-        sample_rate, data = wavfile.read(self.file_name)
-        self.sample_rate = sample_rate
-        self.frequencies = data
+    def get_frequencies(self, listof_min_data):
+        # Convert listof_min_data from rfft to hz
+	listof_min_hz = []
+
+	for x in listof_min_data:
+		listof_min_hz.append(abs(x*self.sample_rate)/100000)
+
+	return listof_min_hz
+	
 	
 	
 	
     def make_mono(self):
+	# MUST ALWAYS EXECUTE BEFORE CALLING GET_FFT TO AVOID SIDE EFFECT CORRUPTION
 	"""
 	Take stereo data and make it into mono data
 	"""
@@ -53,22 +58,33 @@ class WavData():
 
 	self.frequencies = mono_frequencies
 
-    def get_fft(self):
-	# Create a list of 20 min values from the wav data
-	count = 0
-	min_list = []
-	while(count < 20):
-		# Grab min
-		min_list.append(np.amin(self.frequencies))
-		# Pop min off list
-		where_min = np.where(self.frequencies==np.amin(self.frequencies))
-		self.frequencies = np.delete(self.frequencies, where_min)
-		count += 1	
+    def make_min_max_samples(self):
+	# Create a list of min max amp values for each second of the wav data
+	min_max = []
 
-	rfft_min_list = []
-	for x in min_list:
-		rfft_min_list.append(rfft([x]))
-	print rfft_min_list
+	seconds_list = [self.frequencies[x:x+44100] for x in range(0, len(self.frequencies),44100)]
+
+	for second in seconds_list:
+		for x in second:
+			if (x >= 0):
+				frame_min = x
+			if (x < frame_min and x >= 0):
+				frame_min = x
+		frame_max = np.amax(second)
+
+		min_max.append((frame_min, frame_max))
+
+	# FOR TESTING PURPOSES
+	#print min_max
+
+	# Convert min_max from amps to freqs
+	count = 0
+	while(count < len(min_max)):
+		# rfft the pair and convert to hz
+		min_max[count] = (self.fft_to_freq(min_max[count][0]), self.fft_to_freq(min_max[count][1]))
+		count += 1	
+	self.frequencies = min_max
+	#print self.frequencies
 
     def get_duration(self):
 	"""
