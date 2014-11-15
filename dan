@@ -7,16 +7,21 @@ import sndhdr
 import shutil
 import glob
 import pdb
+
 # If we convert files from mp3 to wav, record their names here to remove later
 temporary_files = []
+
+if not os.path.exists('tmp/'):
+	os.makedirs('tmp/')
 
 def is_mp3(file_path, directory=''):
 	"""
 	Given this path, True if ends in .mp3 and data reads as mp3
 	If there is an input directory, make sure to tag it on to the path
 	"""
+	pdb.set_trace()
 	if directory:
-		file_path = directory + '/' + file_path
+		file_path = directory + file_path
 	result = sndhdr.what(file_path)	
 	# Apparently mp3s aren't supposed to return a header
 	if not result and file_path.endswith('.mp3'):
@@ -42,14 +47,13 @@ def mp3_to_wav(file_path, directory=''):
 	"""
 	Given this mp3 file, convert it to wav
 	"""
+	pdb.set_trace()
 	if directory:
 		file_path = directory + file_path
 	# We have a var for finding the file, and one for creating the new file
 	just_file = file_path.rsplit('/', 1)[1] + '.wav'
   
 	# If tmp/ does not exist, make it.  Add our new wav file into it.	
-	if not os.path.exists('tmp/'):
-		os.makedirs('tmp/')	
 	os.system("/course/cs4500f14/bin/lame --decode --silent {file} tmp/{new_name}".format(file=file_path, new_name=just_file))
 	
 	true_path = 'tmp/' + just_file
@@ -59,7 +63,7 @@ def mp3_to_wav(file_path, directory=''):
 # Try to get a grip on the sys args.  If they are presnt, do a basic form test
 # Check to make sure we have the correct number of args, along with '-f's
 if len(sys.argv) != 5 or (sys.argv[1] != '-f' and sys.argv[1] != '-d') or (sys.argv[3] != '-f' and sys.argv[3] != '-d'):
-	print 'ERROR: Incorrect command line. \n'
+	print >>sys.stderr, "ERROR: Incorrect command line."
 	sys.exit(0)
 
 input1 = sys.argv[2]
@@ -67,18 +71,18 @@ input2 = sys.argv[4]
 
 # Do some initial flag tests to ensure the flag corresponds to the input
 if sys.argv[1] == "-d" and not os.path.isdir(input1):
-	print "ERROR: {arg} is not a directory \n".format(arg=sys.argv[2])
+	print >>sys.stderr, "ERROR: {arg} is not a directory".format(arg=sys.argv[2])
 	sys.exit(0)
 if sys.argv[3] == "-d" and not os.path.isdir(input2):
-	print "ERROR: {arg} is not a directory \n".format(arg=sys.argv[4])
+	print >>sys.stderr, "ERROR: {arg} is not a directory".format(arg=sys.argv[4])
 	sys.exit(0)
 
 if sys.argv[1] == '-f' and os.path.isdir(input1):
-	print "ERROR: {arg} is not a file \n".format(arg=sys.argv[2])
+	print >>sys.stderr, "ERROR: {arg} is not a file".format(arg=sys.argv[2])
 	sys.exit(0)
 
-if sys.argv[1] == '-f' and os.path.isdir(input2):
-	print "ERROR: {arg} is not a file \n".format(arg=sys.argv[2])
+if sys.argv[3] == '-f' and os.path.isdir(input2):
+	print >>sys.stderr, "ERROR: {arg} is not a file".format(arg=sys.argv[2])
 	sys.exit(0)
 
 
@@ -98,18 +102,19 @@ if os.path.isdir(input1):
 	for f in os.listdir(input1):
 		# Do an initial test to ensure the file exists
 		if not os.path.isfile(os.path.join(input1, f)):
-			print 'ERRROR: {arg} does not exit \n'.format(arg=input1+f)
+			print >>sys.stderr,"ERROR: {arg} does not exit".format(arg=input1+f)
 			sys.exit(0)
+		pdb.set_trace()
 		# If this file is a wav, throw it on
 		if is_wav(f, input1):
-			compare_list1.append(input1 + '/' + f)
+			compare_list1.append(input1 + f)
 		# If the file is an mp3, convert it and throw it on
 		elif is_mp3(f, input1):
 			f = mp3_to_wav(f, input1)
-			compare_list1.append(input1 + '/' + f)
+			compare_list1.append(input1 + f)
 		# Else the file is in a bad format
 		else:
-			print "ERROR: {arg} is not in a compatible format \n".format(arg=input1+f)
+			print >>sys.stderr,"ERROR: {arg} is not in a compatible format".format(arg=input1+f)
 			sys.exit(0)
 
 # Check if input2 is a directory
@@ -122,18 +127,18 @@ if os.path.isdir(input2):
         for f in os.listdir(input2):
 		# Check to make sure the file exists
                 if not os.path.isfile(os.path.join(input2, f)):
-			print 'ERROR: {arg} does not exist \n'.format(arg=input2+f)
+			print >>sys.stderr, "ERROR: {arg} does not exist".format(arg=input2+f)
 			sys.exit(0)
 		# If it's a wav, throw it on
 		if is_wav(f,input2):
-                       compare_list2.append(input2 + '/' + f)
+                       compare_list2.append(input2 + f)
 		# If it's an mp3, convert it to wav
                 elif is_mp3(f, input2):
 			f = mp3_to_wav(f, input2)
-			compare_list2.append(input2 + '/' +f)
+			compare_list2.append(input2 + f)
 		# Else, the file is not a good format
 		else:
-		 	print "ERROR: {arg} is not in a compatible format \n".format(arg=input2+f)
+		 	print >>sys.stderr, "ERROR: {arg} is not in a compatible format".format(arg=input2+f)
                         sys.exit(0)
 
 # If we know input1 is not a directory, ensure it exists and has propper format
@@ -141,7 +146,7 @@ if not input1_is_dir:
 
 	# Check to make sure the second file argument exists
         if not os.path.isfile(input1):
-                print 'ERROR: {arg} does not exist \n'.format(arg=input1)
+                print >>sys.stderr, "ERROR: {arg} does not exist".format(arg=input1)
                 sys.exit(0)
         # If it's a wav tag it on
         if is_wav(input1):
@@ -153,14 +158,14 @@ if not input1_is_dir:
                 compare_list1.append(f)
 	# Else, the file is in a bad format
         else:
-                print 'ERROR: {arg} is not a supported format \n'.format(arg=sys.input1)
+                print >>sys.stderr, "ERROR: {arg} is not a supported format".format(arg=sys.input1)
                 sys.exit(0)
 
 # If we know input2 is not a directory, ensure it exists and has propper format
 if not input2_is_dir:
 	# Check to make sure the second file argument exists
 	if not os.path.isfile(input2):
-		print 'ERROR: {arg} does not exist \n'.format(arg=input2)
+		print >>sys.stderr, "ERROR: {arg} does not exist".format(arg=input2)
 		sys.exit(0)
 	# If it's a wav tag it on
 	if is_wav(input2):
@@ -172,7 +177,7 @@ if not input2_is_dir:
 		compare_list2.append(f)
 	# Else, the input is not in a supported format
 	else:
-        	print 'ERROR: {arg} is not a supported format \n'.format(arg=input2)
+        	print >>sys.stderr, 'ERROR: {arg} is not a supported format'.format(arg=input2)
 		sys.exit(0)
 
 
