@@ -1,6 +1,6 @@
 author__ = 'christopherlyver'
 import numpy as np
-from numpy.fft import rfft
+from numpy.fft import fft
 from scipy.io import wavfile
 import matplotlib.pyplot as plt
 import pylab as pl
@@ -17,12 +17,16 @@ class WavData():
     """
     def __init__(self, wav_file):
         self.file_name = wav_file
+        # self.frequencies is poorly named
         self.sample_rate, self.frequencies = wavfile.read(wav_file)
 	self.duration = None
 
+    def get_rfft(self, sample):
+	# call rfft on either a sample or an enire list. The choice is yours.
+	return fft(sample)
+		
     def chunk(self, chunk_size):
 	# Given a list, make a list of lists of size 'chunk_size'
-	pdb.set_trace()
 	self.frequencies = list(zip(*[iter(self.frequencies)]*chunk_size))
 
     def fft_to_freq(self, val):
@@ -92,6 +96,6 @@ class WavData():
 	"""
 	samples = len(self.frequencies)
 	sample_rate = self.sample_rate
-	duration = samples/sample_rate
+	duration = samples / sample_rate
 	
 	self.duration = duration
