@@ -20,6 +20,11 @@ class WavData():
         self.sample_rate, self.frequencies = wavfile.read(wav_file)
 	self.duration = None
 
+    def chunk(self, chunk_size):
+	# Given a list, make a list of lists of size 'chunk_size'
+	pdb.set_trace()
+	self.frequencies = list(zip(*[iter(self.frequencies)]*chunk_size))
+
     def fft_to_freq(self, val):
 	return abs(val * self.sample_rate)/100000    
 
@@ -35,10 +40,7 @@ class WavData():
 	for x in listof_min_data:
 		listof_min_hz.append(abs(x*self.sample_rate)/100000)
 
-	return listof_min_hz
-	
-	
-	
+	return listof_min_hz	
 	
     def make_mono(self):
 	# MUST ALWAYS EXECUTE BEFORE CALLING GET_FFT TO AVOID SIDE EFFECT CORRUPTION
@@ -61,7 +63,6 @@ class WavData():
     def make_min_max_samples(self):
 	# Create a list of min max amp values for each second of the wav data
 	min_max = []
-
 	seconds_list = [self.frequencies[x:x+44100] for x in range(0, len(self.frequencies),44100)]
 
 	for second in seconds_list:
@@ -73,7 +74,6 @@ class WavData():
 		frame_max = np.amax(second)
 
 		min_max.append((frame_min, frame_max))
-
 	# FOR TESTING PURPOSES
 	#print min_max
 
