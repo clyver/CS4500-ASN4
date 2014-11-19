@@ -19,7 +19,6 @@ def is_mp3(file_path, directory=''):
 	Given this path, True if ends in .mp3 and data reads as mp3
 	If there is an input directory, make sure to tag it on to the path
 	"""
-	pdb.set_trace()
 	if directory:
 		file_path = directory + file_path
 	result = sndhdr.what(file_path)	
@@ -47,7 +46,6 @@ def mp3_to_wav(file_path, directory=''):
 	"""
 	Given this mp3 file, convert it to wav
 	"""
-	pdb.set_trace()
 	if directory:
 		file_path = directory + file_path
 	# We have a var for finding the file, and one for creating the new file
@@ -104,7 +102,6 @@ if os.path.isdir(input1):
 		if not os.path.isfile(os.path.join(input1, f)):
 			print >>sys.stderr,"ERROR: {arg} does not exit".format(arg=input1+f)
 			sys.exit(0)
-		pdb.set_trace()
 		# If this file is a wav, throw it on
 		if is_wav(f, input1):
 			compare_list1.append(input1 + f)
