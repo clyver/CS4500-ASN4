@@ -7,7 +7,19 @@ from numpy.fft import fft
 import numpy as np
 import os
 
+def get_match_index(list1_max, l2):
+	# Check if this max is present in l2, if so return the index in l2
+	i = 0
+	while i < len(l2):
+		if abs(list1_max - np.amax(l2[i])) < 2000000:
+			return i
+		else:
+			i += 1
+	return -1
+
+
 def matches(p1, p2, threshold):
+	pdb.set_trace()
 	# We determine if these two points are close enough, as per threshold
 	return abs(p1 - p2) <= threshold
 
@@ -17,7 +29,7 @@ file2 = sys.argv[2]
 if file1.endswith('.mp3'):
 	name = file1.rsplit('/', 1)[1] + '.wav'
 	os.system("/course/cs4500f14/bin/lame --decode --silent {file} tmp/{new_name}".format(file=file1, new_name=name))
-
+	file1 = "tmp/{name}".format(name=name)
 
 f = wave.open(file1, 'rb')
 nframes = f.getnframes()
@@ -72,49 +84,66 @@ for chunk2 in f2_chunked:
 
 num_errors = 0
 num_match = 0
-i = 0
 j = 0
 matches = 0
 offset = 0
+
 #pdb.set_trace()
-while i < len(f1_chunked):	
-	x = np.amax(f1_fft_chunks[i])
-	y = np.amax(f2_fft_chunks[j])
-	f (abs(x - y) < 2000000):
-		matches += 1
-		offset += 1
-		# Check next set of chunks
-		while (i + offset < len(f1_chunked)):
-			if (abs(np.amax(ff1_fft_chunks[i+offset]) - np.amax(f2_fft_chunks[j+offset])) < 2000000):
-				matches += 1
-			else:
-				matches = 0
-				# reset pointer offsets
-	i += 1
-		
-			
-	#dist = np.linalg.norm(x-y)
-	#difmaxes = abs(np.amax(x) - np.amax(y))
-#	for chunk in f2_fft_chunks:
-		#print matches
-#		if (abs(x - np.amax(chunk)) < 2000000):
-#			matches += 1
-#			break
-			
 
-#	if matches == 50:
-#		print "MATCH: FIXME"
-#		break
-#	matches = 0
-#	i+=1
+def check_sequence(l1, l2):
+	#Check to see if 5 seconds of l1 is in l2
+	j = 0
+	f1_len = len(l1)
+	f2_len = len(l2)
+	while j < f1_len-50:
+		# This chunks match
+		chunk_max = np.amax(f1_fft_chunks[j])
+		# See if there is a match in the other list, else -1
+		match_index = get_match_index(chunk_max, f2_fft_chunks)
+		if match_index >= 0:
+			# If there is a match, see if we have 5 seconds
+			total_matches = 0
+			i = 0
+			# We check the remainder of the song for a match
+			room_to_check = f2_len - match_index
+			# We make p to leave a trail of bread crumbs
+			p = j
+			# We may want to have some give.  Allow some lenientcy
+			slip = 37
+			while i < room_to_check:
+				# Get the chunk maxes
+				f1_chunk_max = np.amax(f1_fft_chunks[p])
+				f2_chunk_max = np.amax(f2_fft_chunks[match_index])
+				if abs(f1_chunk_max - f2_chunk_max) < 2000000:
+					total_matches += 1
+					p += 1
+					match_index += 1
+					i += 1
+					if total_matches == 50:
+						print "Match"
+						return True
+				else:
+					# We see if we have any more slips to use
+					if slip:
+						slip = slip - 1
+						total_matches += 1
+                                        	p += 1
+                                        	match_index += 1
+                                        	i += 1
+                                        	if total_matches == 50:
+                                                	print "Match"
+                                                	return True
+					else:	
+						# We're out of luck
+						j += 1
+						break
+			#If we exit the while loop, we didn't reach 5 seconds of matches
+			#TODO: We can tell upfront if we know we won't have enough space
+			j +=1 
+		else:
+			# If no matches, move on and check for more
+			j += 1
 
-#	if difmaxes < 2000000:
-	#	print "dif between x and y maxes: {maxdif}".format(maxdif = np.amax(x) - np.amax(y))
-#		num_match += 1
-#	else:
-	#	print "dif between x and y maxes for erros: {mdif}".format(mdif = np.amax(x) - np.amax(y))
-#		num_errors += 1
-#	i += 1
-
-#print "The number of errors: ", num_errors
-#print "The number of matches: ", num_match
+	print "No match"
+	return False
+check_sequence(f1_fft_chunks, f2_fft_chunks)	
