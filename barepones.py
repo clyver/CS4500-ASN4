@@ -109,7 +109,7 @@ def check_sequence(l1, l2):
 			# We make p to leave a trail of bread crumbs
 			p = j
 			# We may want to have some give.  Allow some lenientcy
-			slip = 37
+			slip = 2
 			while i < room_to_check:
 				# Get the chunk maxes
 				f1_chunk_max = np.amax(f1_fft_chunks[p])
