@@ -35,8 +35,16 @@ def is_mp3(f, directory=""):
 		f = directory + f
 	result = sndhdr.what(f)
 	# MP3s should not return a result. We alse want '.mp3' on the end 
-	return  result and f.endswith(".mp3")
+	return not result and f.endswith(".mp3")
 
+def short(path):
+	"""
+	Return the name of the file without any path
+	"""
+	if '/' in path:
+        	return path.rsplit('/', 1)[1]
+	else:
+		return path
 def mp3_to_wav(f, directory=""):
 	"""
 	Given this mp3 file, convert it to wav in the tmp/ dir.
@@ -45,12 +53,12 @@ def mp3_to_wav(f, directory=""):
 	if directory:
 		f = directory + f
 	
-	just_file = file_path.rsplit('/', 1)[1] + ".wav"
+	just_file = short(f) + ".wav"
 	mp3_path = "tmp/" + just_file
 	
 	# Create this audio's wav file in the tmp/ dir
 	os.system("/course/cs4500f14/bin/lame --decode --silent {file} \
-		 {new_name}".format(file=file_path, new_name=mp3_path))	
+		 {new_name}".format(file=f, new_name=mp3_path))	
 	return mp3_path
 
 def file_handler(f, directory=""):
@@ -99,7 +107,6 @@ def get_match_index(max1, l2):
 
 
 def matches(p1, p2, threshold):
-	pdb.set_trace()
 	# We determine if these two points are close enough, as per threshold
 	return abs(p1 - p2) <= threshold
 
@@ -186,7 +193,7 @@ def dir_breakdown(input_dir, respective_dict):
 if len(sys.argv) != 5 or \
    (sys.argv[1] != '-f' and sys.argv[1] != '-d') or \
    (sys.argv[3] != '-f' and sys.argv[3] != '-d'):
-        print >>sys.stderr, "ERROR: Incorrect command line."
+        print >>sys.stderr, "ERROR: incorrect command line."
         sys.exit(0)
 # We've done a basic analysis of our input. Set our inputs to a variables
 flag1 = sys.argv[1]
@@ -196,17 +203,17 @@ data2 = sys.argv[4]
 
 # Let's make sure the provided flags (-f|-d) match the corresponfing input
 if flag1 == "-d" and not os.path.isdir(data1):
-	print >>sys.stderr, "Error: {data} is not a directory".format(arg=data1)
+	print >>sys.stderr, "Error: {arg} is not a directory".format(arg=data1)
 	sys.exit(0)
 if flag2 == "-d" and not os.path.isdir(data2):
-	print >>sys.stderr, "Error: {data} is not a directory".format(arg=data2)
+	print >>sys.stderr, "Error: {arg} is not a directory".format(arg=data2)
         sys.exit(0)
-if flag1 == '-f' and os.path.isdir(data1):
+if flag1 == '-f' and not os.path.isfile(data1):
         print >>sys.stderr, "ERROR: {arg} is not a file".format(arg=data1)
         sys.exit(0)
 
-if flag2 == '-f' and os.path.isdir(data2):
-        print >>sys.stderr, "ERROR: {arg} is not a file".format(arg=sys.data2)
+if flag2 == '-f' and not os.path.isfile(data2):
+        print >>sys.stderr, "ERROR: {arg} is not a file".format(arg=data2)
         sys.exit(0)
 
 """
@@ -221,12 +228,16 @@ data2_is_dir = os.path.isdir(data2)
 if data1_is_dir:
 	dir_breakdown(data1, data1_dict)
 else:
+	if is_mp3(data1):
+		data1 = mp3_to_wav(data1)
 	song_data = file_handler(data1)
 	data1_dict[data1] = song_data
 
 if data2_is_dir:
 	dir_breakdown(data2, data2_dict)
 else:
+	if is_mp3(data2):
+		data2 = mp3_to_wav(data1)
 	song_data = file_handler(data2)
 	data2_dict[data2] = song_data
 
@@ -255,5 +266,5 @@ for key1 in data1_keys:
 			data1_value = data1_dict[key1]
 			data2_value = data2_dict[key2]
 			if check_sequence(data1_value, data2_value):
-				print "MATCH", key1, key2
+				print "MATCH", short(key1), short(key2)
 				found_so_far.append(pair) 
