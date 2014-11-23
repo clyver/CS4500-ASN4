@@ -95,7 +95,9 @@ def file_handler(f, directory=""):
 	fft_chunk_maxes = []
 	for chunk in f_chunked:
 		fft_chunk = fft(chunk)
+		#freqs = fft_chunk.fftfreq(len(fft_chunk))
 		chunk_max = np.max(fft_chunk)
+		#chunk_max = np.amax(freqs)
 		fft_chunk_maxes.append(chunk_max)
 	
 	# Return our list of highest fft chunk values
@@ -121,6 +123,8 @@ def check_sequence(l1, l2):
 	Given two lists of fft data, print "MATCH" if there is 5 seconds of 
 	matching data in the two lists
 	"""
+	num_errors = 0
+	num_match = 0
 	j = 0
 	f1_len = len(l1)
 	f2_len = len(l2)
