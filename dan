@@ -32,7 +32,9 @@ def is_mp3(f, directory=""):
 	directory arg is needed to fine the entire path of a file in a dir
 	"""
 	if directory:
-		f = directory + f
+                # Make sure we add a '/' if needed
+                f = directory + f if directory.endswith('/') else directory + '/' + f
+
 	result = sndhdr.what(f)
 	# MP3s should not return a result. We alse want '.mp3' on the end 
 	return not result and f.endswith(".mp3")
@@ -51,7 +53,8 @@ def mp3_to_wav(f, directory=""):
 	Return the new path to that file
 	"""
 	if directory:
-		f = directory + f
+                # Make sure we add a '/' if needed
+                f = directory + f if directory.endswith('/') else directory + '/' + f
 	
 	just_file = short(f) + ".wav"
 	mp3_path = "tmp/" + just_file
@@ -67,8 +70,11 @@ def file_handler(f, directory=""):
 	Return a list of the highest max for all chunks   
 	"""
 
-	if directory:
-		f = directory + f
+	if not "tmp" in f and directory:
+                # Make sure we add a '/' if needed
+                f = directory + f if directory.endswith('/') else directory + '/' + f
+
+
 	# Use the wav library to set our channels, sample rate, etc
 	x = wave.open(f, 'rb')
 	nframes = x.getnframes()
