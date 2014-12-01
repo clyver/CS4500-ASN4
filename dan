@@ -195,7 +195,7 @@ def dir_breakdown(input_dir, respective_dict):
                 except:
                         print >>sys.stderr, "Error: {f}'s format \
                         is not supported".format(f=f)
-			sys.exit(0)
+			sys.exit(1)
 """Analyze the command line arguments.  Must be in form:
 	./dan <-f|-d> <file|dir> <-f|-d> <file|dir>
 """
@@ -203,7 +203,7 @@ if len(sys.argv) != 5 or \
    (sys.argv[1] != '-f' and sys.argv[1] != '-d') or \
    (sys.argv[3] != '-f' and sys.argv[3] != '-d'):
         print >>sys.stderr, "ERROR: incorrect command line."
-        sys.exit(0)
+        sys.exit(1)
 # We've done a basic analysis of our input. Set our inputs to a variables
 flag1 = sys.argv[1]
 data1 = sys.argv[2]
@@ -213,17 +213,17 @@ data2 = sys.argv[4]
 # Let's make sure the provided flags (-f|-d) match the corresponfing input
 if flag1 == "-d" and not os.path.isdir(data1):
 	print >>sys.stderr, "Error: {arg} is not a directory".format(arg=data1)
-	sys.exit(0)
+	sys.exit(1)
 if flag2 == "-d" and not os.path.isdir(data2):
 	print >>sys.stderr, "Error: {arg} is not a directory".format(arg=data2)
-        sys.exit(0)
+        sys.exit(1)
 if flag1 == '-f' and not os.path.isfile(data1):
         print >>sys.stderr, "ERROR: {arg} is not a file".format(arg=data1)
-        sys.exit(0)
+        sys.exit(1)
 
 if flag2 == '-f' and not os.path.isfile(data2):
         print >>sys.stderr, "ERROR: {arg} is not a file".format(arg=data2)
-        sys.exit(0)
+        sys.exit(1)
 
 """
 Now that we know our input is in the correct format, ensure all files are
