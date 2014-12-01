@@ -39,6 +39,22 @@ def is_mp3(f, directory=""):
 	# MP3s should not return a result. We alse want '.mp3' on the end 
 	return not result and f.endswith(".mp3")
 
+def is_ogg(file):
+	# Return True if this file has the .ogg file tag
+	return file.endswith(".ogg")
+
+def ogg_to_wav(f, directory=""):
+	if directory:
+                # Make sure we add a '/' if needed
+                f = directory + f if directory.endswith('/') else directory + '/' + f
+
+	try:
+		os.system("oggdec -o {f1} {f2}".format(f1=out_path, f2=ogg_file))
+	except IOError, e:
+		print e
+		sys.exit(1)
+
+
 def short(path):
 	"""
 	Return the name of the file without any path
@@ -152,7 +168,10 @@ def check_sequence(l1, l2):
 					match_index += 1
 					i += 1
 					if total_matches == 50:
-						return True
+						# Determine when the match occured
+						f1_match = p/10 - 5
+						f2_match = match_index/10 - 5
+						return (True, f1_match, f2_match)
 				else:
 					# We see if we have any more slips to use
 					if slip:
@@ -174,7 +193,7 @@ def check_sequence(l1, l2):
 			# If no matches, move on and check for more
 			j += 1
 
-	return False	
+	return (False, None, None)	
 
 def dir_breakdown(input_dir, respective_dict):
 	"""
@@ -274,6 +293,8 @@ for key1 in data1_keys:
 		if pair not in found_so_far: 
 			data1_value = data1_dict[key1]
 			data2_value = data2_dict[key2]
-			if check_sequence(data1_value, data2_value):
-				print "MATCH", short(key1), short(key2)
+			compare_vals = check_sequence(data1_value, data2_value)
+			if compare_vals[0]:
+				print "MATCH", short(key1), short(key2),\
+				        compare_vals[1], compare_vals[2]
 				found_so_far.append(pair) 
