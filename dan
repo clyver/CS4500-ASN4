@@ -9,9 +9,9 @@ import numpy as np
 from scipy.io import wavfile
 from numpy.fft import fft
 """
-This is our dan2 file.  It is our second attempt at accomplishing our semester
-project.  In this script you will find command line argument handling, along
-with the parsing of wav/mp3 audio files and directories
+This is our dan file.  It is our second attempt at accomplishing our semester
+project.  In this script you will find command line argument handling, an
+audio comparator, along with the parsing of wav/mp3 audio files and directories
 """
 # We may be making some files that we'll want put in tmp/
 if not os.path.exists("tmp/"):
@@ -29,7 +29,7 @@ data2_dict = {}
 def is_mp3(f, directory=""):
 	"""
 	Determine if file f is in mp3 format.
-	directory arg is needed to fine the entire path of a file in a dir
+
 	"""
 	if directory:
                 # Make sure we add a '/' if needed
@@ -69,7 +69,6 @@ def file_handler(f, directory=""):
 	Normalize this file.  Chunk it up.  Call fft on chunks.
 	Return a list of the highest max for all chunks   
 	"""
-
 	if not "tmp" in f and directory:
                 # Make sure we add a '/' if needed
                 f = directory + f if directory.endswith('/') else directory + '/' + f
