@@ -12,7 +12,7 @@ Emails:
 
 How to Compile and Run:
 
-  To this program and compare your WAV files,
+  To this program and compare your audio files,
   run one of the following commands:
 
     ./dan -f <pathname> -f <pathname>
@@ -20,18 +20,18 @@ How to Compile and Run:
     ./dan -f <pathname> -d <pathname>
     ./dan -d <pathname> -f <pathname>
 
-   - Where <pathname> is a Linux path name.  If a <pathname> is
-   preceded by "-f", then the <pathname> must end in ".wav" or
-   ".mp3" and must name a file that already exists on the CCIS
-   shared file system.  If a <pathname> is preceded by "-d", it
-   must name a directory that already exists on the CCIS shared
-   file system and contains nothing but files whose pathnames
-   would be legal following a "-f" option.
+   -Where <pathname> is a Linux path name.  If a <pathname> is
+    preceded by "-f", then the <pathname> must end in ".wav" or
+    ".mp3" or ".ogg" and must name a file that already exists on
+    the CCIS shared file system.  If a <pathname> is preceded by
+    "-d", it must name a directory that already exists on the
+    CCIS shared file system and contains nothing but files whose
+    pathnames would be legal following a "-f" option.
 
    If two audio files match, you will be notified by 'MATCH' along with 
    the file names.   
 
-   We assume the user has all the necessary permissions.
+   We assume the user has all necessary permissions.
 
 Third Party Software:
     We did not use any third paty software,
