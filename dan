@@ -82,6 +82,19 @@ def short(path):
 	else:
 		return path
 
+def check_dir_files(directory):
+	"""
+	We want to ensure that there are no nested directories
+	"""
+
+	dir_content = os.listdir(directory)
+	for elem in dir_content:
+		path = directory + elem
+		# If we come across a directory, break
+		if not os.path.isfile(path):
+			return False
+	return True
+
 def reduce_output(path):
 	"""
 	Ensure we print out the correct file paths
@@ -242,9 +255,18 @@ def dir_breakdown(input_dir, respective_dict):
 	Breakdwon this dir. Iterate over the files. Check for propper formats.
 	If the file is good, add its data to the respective dictioanary
 	"""
+
+	# Make sure this directory contains only files
+	if not check_dir_files(input_dir):
+		print >> sys.stderr, "ERROR: {dir} has a nested directory" \
+					.format(dir=input_dir)
+		sys.exit(1)
+
 	# Go through the dir's files and ensure all are either wav or mp3
         dir_files = os.listdir(input_dir)
-        for f in dir_files:
+        
+	pdb.set_trace()
+	for f in dir_files:
                 # Check  to see if this file is a wav, convert if needed
 
 		if is_ogg(f):
