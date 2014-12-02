@@ -13,9 +13,12 @@ This is our dan file.  It is our second attempt at accomplishing our semester
 project.  In this script you will find command line argument handling, an
 audio comparator, along with the parsing of wav/mp3 audio files and directories
 """
-# We may be making some files that we'll want put in tmp/
-if not os.path.exists("tmp/"):
-	os.makedirs("tmp/")
+
+# We may be making some files that we'll want put in tmp/HGML
+# H.G.M.L Stands for Hsie, Georgescu, Manser, Lyver, the last names of the devs
+# This is funny because it sounds like HTML
+if not os.path.exists("/tmp/HGML"):
+	os.makedirs("/tmp/HGML")
 
 """
 We're going to create a dictionary for each data input
@@ -25,12 +28,12 @@ data1_dict = {}
 data2_dict = {}
 
 # Some helpers before we get down to business:
+# EDIT: There are actually a hella lot of helper funcs
 
+
+# Takes a file name f and a string directory path
+# Returns true or false based on mp3 format or not
 def is_mp3(f, directory=""):
-	"""
-	Determine if file f is in mp3 format.
-
-	"""
 	if directory:
                 # Make sure we add a '/' if needed
                 f = directory + f if directory.endswith('/') else directory + '/' + f
@@ -38,6 +41,7 @@ def is_mp3(f, directory=""):
 	result = sndhdr.what(f)
 	# MP3s should not return a result. We alse want '.mp3' on the end 
 	return not result and f.endswith(".mp3")
+
 
 def short(path):
 	"""
@@ -47,6 +51,8 @@ def short(path):
         	return path.rsplit('/', 1)[1]
 	else:
 		return path
+
+
 def mp3_to_wav(f, directory=""):
 	"""
 	Given this mp3 file, convert it to wav in the tmp/ dir.
@@ -57,36 +63,42 @@ def mp3_to_wav(f, directory=""):
                 f = directory + f if directory.endswith('/') else directory + '/' + f
 	
 	just_file = short(f) + ".wav"
-	mp3_path = "tmp/" + just_file
+	mp3_path = "/tmp/HGML/" + just_file
 	
 	# Create this audio's wav file in the tmp/ dir
 	os.system("/course/cs4500f14/bin/lame --decode --silent {file} \
 		 {new_name}".format(file=f, new_name=mp3_path))	
 	return mp3_path
 
+
 def file_handler(f, directory=""):
 	"""
-	Normalize this file.  Chunk it up.  Call fft on chunks.
-	Return a list of the highest max for all chunks   
-	"""
+	Normalize this file.  Chunk it up.  Call fft on chunks.  
 	if not "tmp" in f and directory:
                 # Make sure we add a '/' if needed
                 f = directory + f if directory.endswith('/') else directory + '/' + f
+	"""
+	
+	# Instead of using wave.open use lame to standardize the .wav
 
+	# Standardize .wav file by converting to .mp3 then returning to .wav
+	mp3_path = "/tmp/HGML/" + short(f)
+	#print mp3_path
+	try:
+		os.system("/course/cs4500f14/bin/lame --silent --resample 44.1 -a {file}\
+			{new_name}".format(file=f, new_name=mp3_path+".mp3"))
+	except:
+		print >> sys.stderr, "unsuccessful conversion in file_handler wav to mp3"
+		sys.exit(1)
 
-	# Use the wav library to set our channels, sample rate, etc
-	x = wave.open(f, 'rb')
-	nframes = x.getnframes()
-	frames  = x.readframes(nframes)
-	x.close()
-	temp = tempfile.NamedTemporaryFile(dir="/tmp/")
-	ft = wave.open(temp, 'wb')
-	ft.setparams((1, 2, 44100, nframes, "NONE", "not compressed"))
-	ft.writeframes(frames)
-	ft.close()
+	try:
+		os.system("/course/cs4500f14/bin/lame --silent --decode {f1} \
+		{fname}".format(f1=mp3_path+".mp3", fname=mp3_path))
+	except:
+		print >> sys.stderr, "unsuccessful conversion in file_handler mp3_to_wav"	
 
 	# Get the data out of the file we just normalized
-	f_sample_rate, f_wav_data = wavfile.read(temp.name)
+	f_sample_rate, f_wav_data = wavfile.read(mp3_path)
 	# Chunk it up into sub lists of len 4096 (fft likes base 2)
 	f_chunked = list(zip(*[iter(f_wav_data)]*4096))
 
@@ -101,6 +113,7 @@ def file_handler(f, directory=""):
 	
 	# Return our list of highest fft chunk values
 	return fft_chunk_maxes
+
 
 def get_match_index(max1, l2):
 	# Check if this max is present in l2, if so return the index in l2
@@ -178,7 +191,7 @@ def check_sequence(l1, l2):
 
 def dir_breakdown(input_dir, respective_dict):
 	"""
-	Breakdwon this dir. Iterate over the files. Check for propper formats.
+	Breakdown this dir. Iterate over the files. Check for propper formats.
 	If the file is good, add its data to the respective dictioanary
 	"""
 	# Go through the dir's files and ensure all are either wav or mp3
@@ -196,6 +209,14 @@ def dir_breakdown(input_dir, respective_dict):
                         print >>sys.stderr, "Error: {f}'s format \
                         is not supported".format(f=f)
 			sys.exit(1)
+
+
+def delete_HGMLtmp_dir():
+	os.system("rm -r /tmp/HGML/")
+
+#### End of Helper Functions ####
+
+
 """Analyze the command line arguments.  Must be in form:
 	./dan <-f|-d> <file|dir> <-f|-d> <file|dir>
 """
@@ -276,4 +297,8 @@ for key1 in data1_keys:
 			data2_value = data2_dict[key2]
 			if check_sequence(data1_value, data2_value):
 				print "MATCH", short(key1), short(key2)
-				found_so_far.append(pair) 
+				found_so_far.append(pair)
+
+
+# Finally remove tmp directory we created
+delete_HGMLtmp_dir() 
