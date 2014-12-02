@@ -201,6 +201,22 @@ def file_handler(f, directory=""):
 	# Return our list of highest fft chunk values
 	return fft_chunk_maxes
 
+def check_type(f, directory=""):
+	ogg = False
+        mp3 = False
+        wav = False
+        if is_ogg(f):
+                ogg = True
+                f = ogg_to_wav(f)
+        elif is_mp3(f):
+                mp3 = True
+                f = mp3_to_wav(f)
+        elif is_wav(f):
+                wav = True
+        if any((ogg, mp3, wav)):
+		return f
+	else:
+		False
 
 def get_match_index(max1, l2):
 	# Check if this max is present in l2, if so return the index in l2
@@ -289,7 +305,6 @@ def dir_breakdown(input_dir, respective_dict):
 	If the file is good, add its data to the respective dictioanary
 	"""
 
-
 	# Make sure this directory contains only files
 	if not check_dir_files(input_dir):
 		print >> sys.stderr, "ERROR: {dir} has a nested directory" \
@@ -370,22 +385,31 @@ data2_is_dir = os.path.isdir(data2)
 if data1_is_dir:
 	dir_breakdown(data1, data1_dict)
 else:
-	if is_ogg(data1):
-		data1 = ogg_to_wav(data1)
-	elif is_mp3(data1):
-		data1 = mp3_to_wav(data1)
-	song_data = file_handler(data1)
-	data1_dict[data1] = song_data
+	# Good input will return the path to the file if it is in good form
+	# If data1 is not in a propper format it will return false 
+	good_file = check_type(data1)
+	if good_file:
+		song_data = file_handler(good_file)
+		data1_dict[data1] = song_data
+	else:
+		# This file is not in a supported format
+		print >> sys.stderr,\
+                         "Error: {f}'s format is not supported".format(f=f)
+                sys.exit(1)
 
 if data2_is_dir:
 	dir_breakdown(data2, data2_dict)
 else:
-	if is_ogg(data2):
-		data2 = ogg_to_wav(data2)
-	elif is_mp3(data2):
-		data2 = mp3_to_wav(data2)
-	song_data = file_handler(data2)
-	data2_dict[data2] = song_data
+	good_file = check_type(data2)
+        if good_file:
+                song_data = file_handler(good_file)
+                data1_dict[data2] = song_data
+
+	else:
+                # This file is not in a supported format
+                print >> sys.stderr,\
+                         "Error: {f}'s format is not supported".format(f=f)
+                sys.exit(1)
 
 # ***At this point we have our dicts filled with the data we'll be comparing 
 
