@@ -287,8 +287,8 @@ def dir_breakdown(input_dir, respective_dict):
                         song_data = file_handler(f, input_dir)
                         respective_dict[f] = song_data
                 except:
-                        print >> sys.stderr, "Error: {f}'s format \
-                        is not supported".format(f=f)
+                        print >> sys.stderr,\
+			 "Error: {f}'s format is not supported".format(f=f)
 			sys.exit(1)
 
 
