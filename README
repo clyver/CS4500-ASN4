@@ -12,7 +12,7 @@ Emails:
 
 How to Compile and Run:
 
-  To this program and compare your audio files,
+  To run this program and compare your audio files,
   run one of the following commands:
 
     ./dan -f <pathname> -f <pathname>
@@ -29,7 +29,7 @@ How to Compile and Run:
     pathnames would be legal following a "-f" option.
 
    If two audio files match, you will be notified by 'MATCH' along with 
-   the file names.   
+   the file names and the times at which the match occurs.   
 
    We assume the user has all necessary permissions.
 

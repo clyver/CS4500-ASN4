@@ -36,11 +36,43 @@ data2_dict = {}
 def is_mp3(f, directory=""):
 	if directory:
                 # Make sure we add a '/' if needed
-                f = directory + f if directory.endswith('/') else directory + '/' + f
+                f = directory + f if directory.endswith('/')\
+		    else directory + '/' + f
 
 	result = sndhdr.what(f)
 	# MP3s should not return a result. We alse want '.mp3' on the end 
 	return not result and f.endswith(".mp3")
+
+def is_ogg(file):
+	# Return True if this file has the .ogg file tag
+	return file.endswith(".ogg")
+
+def ogg_to_wav(f, directory=""):
+	"""
+	Given an ogg file, convert to wav with Linux's oggdec.
+	Create the new file in the /tmp directory
+	"""
+
+	# Check the validity of the path
+	if directory:
+                # Make sure we add a '/' if needed
+                f = directory + f if directory.endswith('/')\
+		    else directory + '/' + f
+
+	just_file = short(f) + ".wav"
+	ogg_path = "/tmp/" + just_file
+
+	try:
+		os.system("oggdec --quiet -o {f1} {f2}"\
+			.format(f1=ogg_path, f2=f))
+		# Add this to the list of files we make
+		made_files.append(just_file)
+		return ogg_path
+	except:
+		print >> sys.stderr, "{ogg} is not in a supported format".\
+			format(ogg=f)
+		sys.exit(1)
+
 
 
 def short(path):
@@ -52,27 +84,56 @@ def short(path):
 	else:
 		return path
 
+def check_dir_files(directory):
+	"""
+	We want to ensure that there are no nested directories
+	"""
+
+	dir_content = os.listdir(directory)
+	for elem in dir_content:
+		path = directory + elem
+		# If we come across a directory, break
+		if not os.path.isfile(path):
+			return False
+	return True
+
+def reduce_output(path):
+	"""
+	Ensure we print out the correct file paths
+	In particular, if we have a converted file, "test.mp3.wav",
+	we want to return test.wav, disregarding that it was converted
+	""" 
+	if (".wav" and ".mp3" in path) or (".wav" and ".ogg" in path):
+		path = path[:-4]
+	return path
+		
 
 def mp3_to_wav(f, directory=""):
 	"""
-	Given this mp3 file, convert it to wav in the tmp/ dir.
+	Given this mp3 file, convert it to wav in the /tmp/ dir.
 	Return the new path to that file
 	"""
+
+	# Ensure our path is correct for this file
 	if directory:
                 # Make sure we add a '/' if needed
-                f = directory + f if directory.endswith('/') else directory + '/' + f
+                f = directory + f if directory.endswith('/')\
+			 else directory + '/' + f
 	
 	just_file = short(f) + ".wav"
 	mp3_path = "/tmp/HGML/" + just_file
 	
-	# Create this audio's wav file in the tmp/ dir
+	# Create this audio's wav file in the /tmp/ dir
 	os.system("/course/cs4500f14/bin/lame --decode --silent {file} \
 		 {new_name}".format(file=f, new_name=mp3_path))	
+	# Add this file to the list of files we've made so far	
+	made_files.append(just_file)
 	return mp3_path
 
 
 def file_handler(f, directory=""):
 	"""
+
 	Normalize this file.  Chunk it up.  Call fft on chunks.  
 	if not "tmp" in f and directory:
                 # Make sure we add a '/' if needed
@@ -165,9 +226,13 @@ def check_sequence(l1, l2):
 					match_index += 1
 					i += 1
 					if total_matches == 50:
-						return True
+						# Determine when match occured
+						f1_match = p/10 - 5
+						f2_match = match_index/10 - 5
+						return (True,\
+						         f1_match, f2_match)
 				else:
-					# We see if we have any more slips to use
+					# We see if we have slips to use
 					if slip:
 						slip = slip - 1
 						total_matches += 1
@@ -175,30 +240,45 @@ def check_sequence(l1, l2):
                                         	match_index += 1
                                         	i += 1
                                         	if total_matches == 50:
-                                                	return True
+							f1_match = p/10 - 5
+							f2_match = \
+							 match_index/10 - 5
+                                                	return (True, \
+							 f1_match, f2_match)
 					else:	
 						# We're out of luck
 						j += 1
 						break
-			#If we exit the while loop, we didn't reach 5 seconds of matches
-			#TODO: We can tell upfront if we know we won't have enough space
+			# We didn't reach 5 seconds of matches:
 			j +=1 
 		else:
 			# If no matches, move on and check for more
 			j += 1
 
-	return False	
+	return (False, None, None)	
 
 def dir_breakdown(input_dir, respective_dict):
 	"""
 	Breakdown this dir. Iterate over the files. Check for propper formats.
 	If the file is good, add its data to the respective dictioanary
 	"""
+
+	# Make sure this directory contains only files
+	if not check_dir_files(input_dir):
+		print >> sys.stderr, "ERROR: {dir} has a nested directory" \
+					.format(dir=input_dir)
+		sys.exit(1)
+
 	# Go through the dir's files and ensure all are either wav or mp3
         dir_files = os.listdir(input_dir)
-        for f in dir_files:
-                # Check  to see if this file is a wav
-                if is_mp3(f, input_dir):
+        
+	for f in dir_files:
+                # Check  to see if this file is a wav, convert if needed
+
+		if is_ogg(f):
+			f = ogg_to_wav(f, input_dir)
+
+                elif is_mp3(f, input_dir):
                         # Call lame
                         f = mp3_to_wav(f, input_dir)
 			
@@ -206,11 +286,12 @@ def dir_breakdown(input_dir, respective_dict):
                         song_data = file_handler(f, input_dir)
                         respective_dict[f] = song_data
                 except:
-                        print >>sys.stderr, "Error: {f}'s format \
+                        print >> sys.stderr, "Error: {f}'s format \
                         is not supported".format(f=f)
 			sys.exit(1)
 
 
+#  Remove /tmp/HGML/ that we created
 def delete_HGMLtmp_dir():
 	os.system("rm -r /tmp/HGML/")
 
@@ -233,17 +314,21 @@ data2 = sys.argv[4]
 
 # Let's make sure the provided flags (-f|-d) match the corresponfing input
 if flag1 == "-d" and not os.path.isdir(data1):
-	print >>sys.stderr, "Error: {arg} is not a directory".format(arg=data1)
+	print >> sys.stderr, \
+	 "Error: {arg} is not a directory".format(arg=data1)
 	sys.exit(1)
 if flag2 == "-d" and not os.path.isdir(data2):
-	print >>sys.stderr, "Error: {arg} is not a directory".format(arg=data2)
+	print >> sys.stderr, \
+	 "Error: {arg} is not a directory".format(arg=data2)
         sys.exit(1)
 if flag1 == '-f' and not os.path.isfile(data1):
-        print >>sys.stderr, "ERROR: {arg} is not a file".format(arg=data1)
+        print >> sys.stderr, \
+	 "ERROR: {arg} is not a file".format(arg=data1)
         sys.exit(1)
 
 if flag2 == '-f' and not os.path.isfile(data2):
-        print >>sys.stderr, "ERROR: {arg} is not a file".format(arg=data2)
+        print >> sys.stderr, \
+	 "ERROR: {arg} is not a file".format(arg=data2)
         sys.exit(1)
 
 """
@@ -258,7 +343,9 @@ data2_is_dir = os.path.isdir(data2)
 if data1_is_dir:
 	dir_breakdown(data1, data1_dict)
 else:
-	if is_mp3(data1):
+	if is_ogg(data1):
+		data1 = ogg_to_wav(data1)
+	elif is_mp3(data1):
 		data1 = mp3_to_wav(data1)
 	song_data = file_handler(data1)
 	data1_dict[data1] = song_data
@@ -266,8 +353,10 @@ else:
 if data2_is_dir:
 	dir_breakdown(data2, data2_dict)
 else:
-	if is_mp3(data2):
-		data2 = mp3_to_wav(data1)
+	if is_ogg(data2):
+		data2 = ogg_to_wav(data2)
+	elif is_mp3(data2):
+		data2 = mp3_to_wav(data2)
 	song_data = file_handler(data2)
 	data2_dict[data2] = song_data
 
@@ -295,10 +384,23 @@ for key1 in data1_keys:
 		if pair not in found_so_far: 
 			data1_value = data1_dict[key1]
 			data2_value = data2_dict[key2]
-			if check_sequence(data1_value, data2_value):
-				print "MATCH", short(key1), short(key2)
-				found_so_far.append(pair)
+			compare_vals = check_sequence(data1_value,\
+						      data2_value)
+			if compare_vals[0]:
+				print "MATCH", \
+				 reduce_output(short(key1)), \
+				 reduce_output(short(key2)), \
+				 compare_vals[1], compare_vals[2]
+				found_so_far.append(pair) 
 
+tmp_files = os.listdir("/tmp/")
+for f in tmp_files:
+	if f in made_files:
+		f_path = "/tmp/" + f
+		os.remove(f_path)
 
-# Finally remove tmp directory we created
-delete_HGMLtmp_dir() 
+# remove /tmp/HGML/
+delete_HGMLtmp_dir()
+
+# Exit with an exit code of 0
+sys.exit(0)
