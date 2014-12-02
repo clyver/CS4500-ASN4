@@ -393,12 +393,6 @@ for key1 in data1_keys:
 				 compare_vals[1], compare_vals[2]
 				found_so_far.append(pair) 
 
-tmp_files = os.listdir("/tmp/")
-for f in tmp_files:
-	if f in made_files:
-		f_path = "/tmp/" + f
-		os.remove(f_path)
-
 # remove /tmp/HGML/
 delete_HGMLtmp_dir()
 
