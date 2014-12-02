@@ -13,9 +13,9 @@ This is our dan file.  It is our second attempt at accomplishing our semester
 project.  In this script you will find command line argument handling, an
 audio comparator, along with the parsing of wav/mp3 audio files and directories
 """
-# We may be making some files that we'll want put in tmp/
-if not os.path.exists("tmp/"):
-	os.makedirs("tmp/")
+# We may be making some files that we'll want put in /tmp/
+if not os.path.exists("/tmp/"):
+	os.makedirs("/tmp/")
 
 # Let's clean up our mess by deleting all the files we create in tmp
 made_files = []
@@ -56,7 +56,7 @@ def ogg_to_wav(f, directory=""):
                 f = directory + f if directory.endswith('/') else directory + '/' + f
 
 	just_file = short(f) + ".wav"
-	ogg_path = "tmp/" + just_file
+	ogg_path = "/tmp/" + just_file
 
 	try:
 		os.system("oggdec --quiet -o {f1} {f2}".format(f1=ogg_path, f2=f))
@@ -85,7 +85,7 @@ def mp3_to_wav(f, directory=""):
                 f = directory + f if directory.endswith('/') else directory + '/' + f
 	
 	just_file = short(f) + ".wav"
-	mp3_path = "tmp/" + just_file
+	mp3_path = "/tmp/" + just_file
 	
 	# Create this audio's wav file in the tmp/ dir
 	os.system("/course/cs4500f14/bin/lame --decode --silent {file} \
@@ -324,10 +324,10 @@ for key1 in data1_keys:
 				found_so_far.append(pair) 
 
 print made_files
-tmp_files = os.listdir("tmp/")
+tmp_files = os.listdir("/tmp/")
 for f in tmp_files:
 	if f in made_files:
-		f_path = "tmp/" + f
+		f_path = "/tmp/" + f
 		os.remove(f_path)
 
 # Exit with an exit code of 0
