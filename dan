@@ -66,7 +66,6 @@ def ogg_to_wav(f, directory=""):
 		os.system("oggdec --quiet -o {f1} {f2}"\
 			.format(f1=ogg_path, f2=f))
 		# Add this to the list of files we make
-		made_files.append(just_file)
 		return ogg_path
 	except:
 		print >> sys.stderr, "{ogg} is not in a supported format".\
@@ -127,7 +126,6 @@ def mp3_to_wav(f, directory=""):
 	os.system("/course/cs4500f14/bin/lame --decode --silent {file} \
 		 {new_name}".format(file=f, new_name=mp3_path))	
 	# Add this file to the list of files we've made so far	
-	made_files.append(just_file)
 	return mp3_path
 
 
