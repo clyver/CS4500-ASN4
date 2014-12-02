@@ -133,20 +133,21 @@ def mp3_to_wav(f, directory=""):
 
 
 def file_handler(f, directory=""):
-	"""
+	
 
-	Normalize this file.  Chunk it up.  Call fft on chunks.  
+	# Normalize this file.  Chunk it up.  Call fft on chunks.  
+	
 	if not "tmp" in f and directory:
                 # Make sure we add a '/' if needed
                 f = directory + f if directory.endswith('/') else directory + '/' + f
-	"""
-	
 	
 	# Check the validity of the path
-        if directory:
+        """
+	if directory:
                 # Make sure we add a '/' if needed
                 f = directory + f if directory.endswith('/')\
                     else directory + '/' + f
+	"""
 	# Instead of using wave.open use lame to standardize the .wav
 	# Standardize .wav file by converting to .mp3 then returning to .wav
 	mp3_path = "/tmp/HGML/" + short(f)
@@ -268,6 +269,7 @@ def dir_breakdown(input_dir, respective_dict):
 	Breakdown this dir. Iterate over the files. Check for propper formats.
 	If the file is good, add its data to the respective dictioanary
 	"""
+
 
 	# Make sure this directory contains only files
 	if not check_dir_files(input_dir):
