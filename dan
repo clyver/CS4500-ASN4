@@ -17,6 +17,9 @@ audio comparator, along with the parsing of wav/mp3 audio files and directories
 if not os.path.exists("tmp/"):
 	os.makedirs("tmp/")
 
+# Let's clean up our mess by deleting all the files we create in tmp
+made_files = []
+
 """
 We're going to create a dictionary for each data input
 key: file_name, value: audio_data
@@ -57,6 +60,7 @@ def ogg_to_wav(f, directory=""):
 
 	try:
 		os.system("oggdec --quiet -o {f1} {f2}".format(f1=ogg_path, f2=f))
+		made_files.append(just_file)
 		return ogg_path
 	except:
 		print >> sys.stderr, "{ogg} is not in a supported format".format(ogg=f)
@@ -86,6 +90,7 @@ def mp3_to_wav(f, directory=""):
 	# Create this audio's wav file in the tmp/ dir
 	os.system("/course/cs4500f14/bin/lame --decode --silent {file} \
 		 {new_name}".format(file=f, new_name=mp3_path))	
+	made_files.append(just_file)
 	return mp3_path
 
 def file_handler(f, directory=""):
@@ -317,6 +322,13 @@ for key1 in data1_keys:
 				print "MATCH", short(key1), short(key2),\
 				        compare_vals[1], compare_vals[2]
 				found_so_far.append(pair) 
+
+print made_files
+tmp_files = os.listdir("tmp/")
+for f in tmp_files:
+	if f in made_files:
+		f_path = "tmp/" + f
+		os.remove(f_path)
 
 # Exit with an exit code of 0
 sys.exit(0)
