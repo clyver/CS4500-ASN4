@@ -44,14 +44,22 @@ def is_ogg(file):
 	return file.endswith(".ogg")
 
 def ogg_to_wav(f, directory=""):
+	"""
+	Given an ogg file, convert to wav with Linux's oggdec.  Create the new file
+	in the tmp directory
+	"""
 	if directory:
                 # Make sure we add a '/' if needed
                 f = directory + f if directory.endswith('/') else directory + '/' + f
 
+	just_file = short(f) + ".wav"
+	ogg_path = "tmp/" + just_file
+
 	try:
-		os.system("oggdec -o {f1} {f2}".format(f1=out_path, f2=ogg_file))
-	except IOError, e:
-		print e
+		os.system("oggdec --quiet -o {f1} {f2}".format(f1=ogg_path, f2=f))
+		return ogg_path
+	except:
+		print >> sys.stderr, "{ogg} is not in a supported format".format(ogg=f)
 		sys.exit(1)
 
 
@@ -181,7 +189,9 @@ def check_sequence(l1, l2):
                                         	match_index += 1
                                         	i += 1
                                         	if total_matches == 50:
-                                                	return True
+							f1_match = p/10 - 5
+							f2_match = match_index/10 - 5
+                                                	return (True, f1_match, f2_match)
 					else:	
 						# We're out of luck
 						j += 1
@@ -203,8 +213,12 @@ def dir_breakdown(input_dir, respective_dict):
 	# Go through the dir's files and ensure all are either wav or mp3
         dir_files = os.listdir(input_dir)
         for f in dir_files:
-                # Check  to see if this file is a wav
-                if is_mp3(f, input_dir):
+                # Check  to see if this file is a wav, convert if needed
+
+		if is_ogg(f):
+			f = ogg_to_wav(f, input_dir)
+
+                elif is_mp3(f, input_dir):
                         # Call lame
                         f = mp3_to_wav(f, input_dir)
 			
@@ -212,9 +226,10 @@ def dir_breakdown(input_dir, respective_dict):
                         song_data = file_handler(f, input_dir)
                         respective_dict[f] = song_data
                 except:
-                        print >>sys.stderr, "Error: {f}'s format \
+                        print >> sys.stderr, "Error: {f}'s format \
                         is not supported".format(f=f)
 			sys.exit(1)
+
 """Analyze the command line arguments.  Must be in form:
 	./dan <-f|-d> <file|dir> <-f|-d> <file|dir>
 """
@@ -231,17 +246,17 @@ data2 = sys.argv[4]
 
 # Let's make sure the provided flags (-f|-d) match the corresponfing input
 if flag1 == "-d" and not os.path.isdir(data1):
-	print >>sys.stderr, "Error: {arg} is not a directory".format(arg=data1)
+	print >> sys.stderr, "Error: {arg} is not a directory".format(arg=data1)
 	sys.exit(1)
 if flag2 == "-d" and not os.path.isdir(data2):
-	print >>sys.stderr, "Error: {arg} is not a directory".format(arg=data2)
+	print >> sys.stderr, "Error: {arg} is not a directory".format(arg=data2)
         sys.exit(1)
 if flag1 == '-f' and not os.path.isfile(data1):
-        print >>sys.stderr, "ERROR: {arg} is not a file".format(arg=data1)
+        print >> sys.stderr, "ERROR: {arg} is not a file".format(arg=data1)
         sys.exit(1)
 
 if flag2 == '-f' and not os.path.isfile(data2):
-        print >>sys.stderr, "ERROR: {arg} is not a file".format(arg=data2)
+        print >> sys.stderr, "ERROR: {arg} is not a file".format(arg=data2)
         sys.exit(1)
 
 """
@@ -256,7 +271,9 @@ data2_is_dir = os.path.isdir(data2)
 if data1_is_dir:
 	dir_breakdown(data1, data1_dict)
 else:
-	if is_mp3(data1):
+	if is_ogg(data1):
+		data1 = ogg_to_wav(data1)
+	elif is_mp3(data1):
 		data1 = mp3_to_wav(data1)
 	song_data = file_handler(data1)
 	data1_dict[data1] = song_data
@@ -264,8 +281,10 @@ else:
 if data2_is_dir:
 	dir_breakdown(data2, data2_dict)
 else:
-	if is_mp3(data2):
-		data2 = mp3_to_wav(data1)
+	if is_ogg(data2):
+		data2 = ogg_to_wav(data2)
+	elif is_mp3(data2):
+		data2 = mp3_to_wav(data2)
 	song_data = file_handler(data2)
 	data2_dict[data2] = song_data
 
@@ -298,3 +317,6 @@ for key1 in data1_keys:
 				print "MATCH", short(key1), short(key2),\
 				        compare_vals[1], compare_vals[2]
 				found_so_far.append(pair) 
+
+# Exit with an exit code of 0
+sys.exit(0)
