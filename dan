@@ -82,6 +82,17 @@ def short(path):
 	else:
 		return path
 
+def reduce_output(path):
+	"""
+	Ensure we print out the correct file paths
+	In particular, if we have a converted file, "test.mp3.wav",
+	we want to return test.wav, disregarding that it was converted
+	""" 
+	if (".wav" and ".mp3" in path) or (".wav" and ".ogg" in path):
+		path = path[:-4]
+	return path
+		
+
 def mp3_to_wav(f, directory=""):
 	"""
 	Given this mp3 file, convert it to wav in the /tmp/ dir.
@@ -340,8 +351,10 @@ for key1 in data1_keys:
 			compare_vals = check_sequence(data1_value,\
 						      data2_value)
 			if compare_vals[0]:
-				print "MATCH", short(key1), short(key2),\
-				        compare_vals[1], compare_vals[2]
+				print "MATCH", \
+				 reduce_output(short(key1)), \
+				 reduce_output(short(key2)), \
+				 compare_vals[1], compare_vals[2]
 				found_so_far.append(pair) 
 
 tmp_files = os.listdir("/tmp/")
