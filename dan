@@ -90,9 +90,12 @@ def check_dir_files(directory):
 
 	dir_content = os.listdir(directory)
 	for elem in dir_content:
-		path = directory + elem
+		if directory:
+                	# Make sure we add a '/' if needed
+                	elem = directory + elem if directory.endswith('/')\
+                    		else directory + '/' + elem
 		# If we come across a directory, break
-		if not os.path.isfile(path):
+		if not os.path.isfile(elem):
 			return False
 	return True
 
