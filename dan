@@ -47,6 +47,23 @@ def is_ogg(file):
 	# Return True if this file has the .ogg file tag
 	return file.endswith(".ogg")
 
+def is_wav(file_path, directory=''):
+	"""
+	Given this path, True if ends in .wav, and data reads as wav
+	If there is an input directory, update the path
+	"""
+        
+	if directory:
+                # Make sure we add a '/' if needed
+                f = directory + f if directory.endswith('/')\
+                    else directory + '/' + f	
+
+	result = sndhdr.what(file_path)
+	if file_path.endswith('.wav') and 'wav' in result:
+                return True
+        else:
+                return False
+
 def ogg_to_wav(f, directory=""):
 	"""
 	Given an ogg file, convert to wav with Linux's oggdec.
