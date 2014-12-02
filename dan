@@ -133,7 +133,9 @@ def mp3_to_wav(f, directory=""):
 
 
 def file_handler(f, directory=""):
-	
+	"""
+	Given a file, break it down into a cononical form and fetch the song data
+	"""	
 
 	# Normalize this file.  Chunk it up.  Call fft on chunks.  
 	
