@@ -17,7 +17,7 @@ audio comparator, along with the parsing of wav/mp3 audio files and directories
 if not os.path.exists("/tmp/"):
 	os.makedirs("/tmp/")
 
-# Let's clean up our mess by deleting all the files we create in tmp
+# Let's clean up our mess by deleting all the files we create in /tmp
 made_files = []
 
 """
@@ -32,11 +32,11 @@ data2_dict = {}
 def is_mp3(f, directory=""):
 	"""
 	Determine if file f is in mp3 format.
-
 	"""
 	if directory:
                 # Make sure we add a '/' if needed
-                f = directory + f if directory.endswith('/') else directory + '/' + f
+                f = directory + f if directory.endswith('/')\
+		    else directory + '/' + f
 
 	result = sndhdr.what(f)
 	# MP3s should not return a result. We alse want '.mp3' on the end 
@@ -48,22 +48,28 @@ def is_ogg(file):
 
 def ogg_to_wav(f, directory=""):
 	"""
-	Given an ogg file, convert to wav with Linux's oggdec.  Create the new file
-	in the tmp directory
+	Given an ogg file, convert to wav with Linux's oggdec.
+	Create the new file in the /tmp directory
 	"""
+
+	# Check the validity of the path
 	if directory:
                 # Make sure we add a '/' if needed
-                f = directory + f if directory.endswith('/') else directory + '/' + f
+                f = directory + f if directory.endswith('/')\
+		    else directory + '/' + f
 
 	just_file = short(f) + ".wav"
 	ogg_path = "/tmp/" + just_file
 
 	try:
-		os.system("oggdec --quiet -o {f1} {f2}".format(f1=ogg_path, f2=f))
+		os.system("oggdec --quiet -o {f1} {f2}"\
+			.format(f1=ogg_path, f2=f))
+		# Add this to the list of files we make
 		made_files.append(just_file)
 		return ogg_path
 	except:
-		print >> sys.stderr, "{ogg} is not in a supported format".format(ogg=f)
+		print >> sys.stderr, "{ogg} is not in a supported format".\
+			format(ogg=f)
 		sys.exit(1)
 
 
@@ -75,21 +81,26 @@ def short(path):
         	return path.rsplit('/', 1)[1]
 	else:
 		return path
+
 def mp3_to_wav(f, directory=""):
 	"""
-	Given this mp3 file, convert it to wav in the tmp/ dir.
+	Given this mp3 file, convert it to wav in the /tmp/ dir.
 	Return the new path to that file
 	"""
+
+	# Ensure our path is correct for this file
 	if directory:
                 # Make sure we add a '/' if needed
-                f = directory + f if directory.endswith('/') else directory + '/' + f
+                f = directory + f if directory.endswith('/')\
+			 else directory + '/' + f
 	
 	just_file = short(f) + ".wav"
 	mp3_path = "/tmp/" + just_file
 	
-	# Create this audio's wav file in the tmp/ dir
+	# Create this audio's wav file in the /tmp/ dir
 	os.system("/course/cs4500f14/bin/lame --decode --silent {file} \
 		 {new_name}".format(file=f, new_name=mp3_path))	
+	# Add this file to the list of files we've made so far	
 	made_files.append(just_file)
 	return mp3_path
 
@@ -98,9 +109,12 @@ def file_handler(f, directory=""):
 	Normalize this file.  Chunk it up.  Call fft on chunks.
 	Return a list of the highest max for all chunks   
 	"""
+
+	# Sort out the path to this file
 	if not "tmp" in f and directory:
                 # Make sure we add a '/' if needed
-                f = directory + f if directory.endswith('/') else directory + '/' + f
+                f = directory + f if directory.endswith('/')\
+			 else directory + '/' + f
 
 
 	# Use the wav library to set our channels, sample rate, etc
@@ -181,12 +195,13 @@ def check_sequence(l1, l2):
 					match_index += 1
 					i += 1
 					if total_matches == 50:
-						# Determine when the match occured
+						# Determine when match occured
 						f1_match = p/10 - 5
 						f2_match = match_index/10 - 5
-						return (True, f1_match, f2_match)
+						return (True,\
+						         f1_match, f2_match)
 				else:
-					# We see if we have any more slips to use
+					# We see if we have slips to use
 					if slip:
 						slip = slip - 1
 						total_matches += 1
@@ -195,14 +210,15 @@ def check_sequence(l1, l2):
                                         	i += 1
                                         	if total_matches == 50:
 							f1_match = p/10 - 5
-							f2_match = match_index/10 - 5
-                                                	return (True, f1_match, f2_match)
+							f2_match = \
+							 match_index/10 - 5
+                                                	return (True, \
+							 f1_match, f2_match)
 					else:	
 						# We're out of luck
 						j += 1
 						break
-			#If we exit the while loop, we didn't reach 5 seconds of matches
-			#TODO: We can tell upfront if we know we won't have enough space
+			# We didn't reach 5 seconds of matches:
 			j +=1 
 		else:
 			# If no matches, move on and check for more
@@ -251,17 +267,21 @@ data2 = sys.argv[4]
 
 # Let's make sure the provided flags (-f|-d) match the corresponfing input
 if flag1 == "-d" and not os.path.isdir(data1):
-	print >> sys.stderr, "Error: {arg} is not a directory".format(arg=data1)
+	print >> sys.stderr, \
+	 "Error: {arg} is not a directory".format(arg=data1)
 	sys.exit(1)
 if flag2 == "-d" and not os.path.isdir(data2):
-	print >> sys.stderr, "Error: {arg} is not a directory".format(arg=data2)
+	print >> sys.stderr, \
+	 "Error: {arg} is not a directory".format(arg=data2)
         sys.exit(1)
 if flag1 == '-f' and not os.path.isfile(data1):
-        print >> sys.stderr, "ERROR: {arg} is not a file".format(arg=data1)
+        print >> sys.stderr, \
+	 "ERROR: {arg} is not a file".format(arg=data1)
         sys.exit(1)
 
 if flag2 == '-f' and not os.path.isfile(data2):
-        print >> sys.stderr, "ERROR: {arg} is not a file".format(arg=data2)
+        print >> sys.stderr, \
+	 "ERROR: {arg} is not a file".format(arg=data2)
         sys.exit(1)
 
 """
@@ -317,13 +337,13 @@ for key1 in data1_keys:
 		if pair not in found_so_far: 
 			data1_value = data1_dict[key1]
 			data2_value = data2_dict[key2]
-			compare_vals = check_sequence(data1_value, data2_value)
+			compare_vals = check_sequence(data1_value,\
+						      data2_value)
 			if compare_vals[0]:
 				print "MATCH", short(key1), short(key2),\
 				        compare_vals[1], compare_vals[2]
 				found_so_far.append(pair) 
 
-print made_files
 tmp_files = os.listdir("/tmp/")
 for f in tmp_files:
 	if f in made_files:
