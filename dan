@@ -141,14 +141,19 @@ def file_handler(f, directory=""):
                 f = directory + f if directory.endswith('/') else directory + '/' + f
 	"""
 	
+	
+	# Check the validity of the path
+        if directory:
+                # Make sure we add a '/' if needed
+                f = directory + f if directory.endswith('/')\
+                    else directory + '/' + f
 	# Instead of using wave.open use lame to standardize the .wav
-
 	# Standardize .wav file by converting to .mp3 then returning to .wav
 	mp3_path = "/tmp/HGML/" + short(f)
 	#print mp3_path
 	try:
-		os.system("/course/cs4500f14/bin/lame --silent --resample 44.1 -a {file}\
-			{new_name}".format(file=f, new_name=mp3_path+".mp3"))
+		os.system("/course/cs4500f14/bin/lame --silent --resample 44.1 -a {fl}\
+			{new_name}".format(fl=f, new_name=mp3_path+".mp3"))
 	except:
 		print >> sys.stderr, "unsuccessful conversion in file_handler wav to mp3"
 		sys.exit(1)
@@ -275,6 +280,7 @@ def dir_breakdown(input_dir, respective_dict):
         
 	for f in dir_files:
                 # Check  to see if this file is a wav, convert if needed
+		
 
 		if is_ogg(f):
 			f = ogg_to_wav(f, input_dir)
@@ -282,7 +288,6 @@ def dir_breakdown(input_dir, respective_dict):
                 elif is_mp3(f, input_dir):
                         # Call lame
                         f = mp3_to_wav(f, input_dir)
-			
                 try:
                         song_data = file_handler(f, input_dir)
                         respective_dict[f] = song_data
