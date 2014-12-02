@@ -265,7 +265,6 @@ def dir_breakdown(input_dir, respective_dict):
 	# Go through the dir's files and ensure all are either wav or mp3
         dir_files = os.listdir(input_dir)
         
-	pdb.set_trace()
 	for f in dir_files:
                 # Check  to see if this file is a wav, convert if needed
 
