@@ -12,7 +12,7 @@ from numpy.fft import fft
 
 # Global Constants
 _NUMBER_MATCHES_NEEDED = 50
-_TEMP_DIR_PATH = "/tmp/HGML22"
+_TEMP_DIR_PATH = "/tmp/HGML"
 
 """
 This is our dan file.  It is our second attempt at accomplishing our semester
