@@ -9,6 +9,10 @@ import numpy as np
 from scipy.io import wavfile
 from numpy.fft import fft
 
+
+# Global Constants
+_NUMBER_MATCHES_NEEDED = 50
+
 """
 This is our dan file.  It is our second attempt at accomplishing our semester
 project.  In this script you will find command line argument handling, an
@@ -150,8 +154,7 @@ def mp3_to_wav(f, directory=""):
 
 def file_handler(f, directory=""):
 	"""
-	Given a file, break it down into a cononical form
-	 and fetch the song data
+	Given a file, return its fingerprint as a list of hashes
 	"""	
 
 	# Normalize this file.  Chunk it up.  Call fft on chunks.  
@@ -202,14 +205,14 @@ def file_handler(f, directory=""):
         list_of_hashes = []
         smaller = 1000000000
         for sublist in fft_bands:
-                index0 = sublist[0]*2/smaller
-                index1 = sublist[1]*3/smaller
-                index2 = sublist[2]*5/smaller
-                index3 = sublist[3]*7/smaller
-                index4 = sublist[4]*11/smaller
-                index5 = sublist[5]*13/smaller
-                index6 = sublist[6]*17/smaller
-                index7 = sublist[7]*19/smaller
+                index0 = (sublist[0]*2)/smaller
+                index1 = (sublist[1]*127)/smaller
+                index2 = (sublist[2]*283)/smaller
+                index3 = (sublist[3]*467)/smaller
+                index4 = (sublist[4]*661)/smaller
+                index5 = (sublist[5]*877)/smaller
+                index6 = (sublist[6]*1087)/smaller
+                index7 = (sublist[7]*1297)/smaller
 
                 total = index0 + index1 + index2 + index3 + index4 + index5 + index6 + index7
                 list_of_hashes.append(total)
@@ -249,76 +252,99 @@ def matches(p1, p2, threshold):
 	# We determine if these two points are close enough, as per threshold
 	return abs(p1 - p2) <= threshold
 
+
+"""
+	This is a helper function to check_sequence.
+	Takes a save_ptr of a list of chunks and
+	returns the time in seconds where the save_ptr
+	resides assuming that chunks are 0.1 seconds long
+"""
+def ptr_to_time(sp):
+	return sp * 0.1
+
+
 def check_sequence(l1, l2):
 	"""
-	Given two lists of fft data, print "MATCH" if there is 5 seconds of 
-	matching data in the two lists
+	Given two lists of hashes, where index of each list represents 1/10th second
+	of song data, and hash represents fingerprint
+	Return a tuple of (BOOLEAN, NUMBER, NUMBER) where bool is true if match
+	of 5 seconds of song is found between l1 and l2, false if no match.
+	if match, first number is where in seconds the match starts in l1
+	while the second number is where in seconds the match starts in l2
+	else both numbers are null/empty/none.
 	"""
-	num_errors = 0
-	num_match = 0
-	j = 0
-	f1_len = len(l1)
-	f2_len = len(l2)
-	limit = f1_len-50
-	total_match = 0
-	total_miss = 0
-	while j < limit:
-		chunk_max = l1[j]	
-		# See if there is a match in the other list, else -1
-		match_index = get_match_index(chunk_max, l2)
-		if match_index >= 0:
-			# If there is a match, see if we have 5 seconds
-			total_matches = 0
-			i = 0
-			# We check the remainder of the song for a match
-			room_to_check = f2_len - match_index
-			# We make p to leave a trail of bread crumbs
-			p = j
-			# We may want to have some give.  Allow some lenientcy
-			slip = 9
-			while i < room_to_check:
-				# Get the chunk maxes
-				l1_chunk_max = l1[p]
-				l2_chunk_max = l2[match_index]
-				if abs(l1_chunk_max - l2_chunk_max) < 2000000:
-					total_matches += 1
-					total_match += 1
-					p += 1
-					match_index += 1
-					i += 1
-					if total_matches == 50:
-						# Determine when match occured
-						f1_match = p/10 - 5
-						f2_match = match_index/10 - 5
-						return (True,\
-						 f1_match, f2_match)
-				else:
-					# We see if we have slips to use
-					if slip:
-						slip = slip - 1
-						total_matches += 1
-                                        	p += 1
-                                        	match_index += 1
-                                        	i += 1
-                                        	if total_matches == 50:
-							f1_match = p/10 - 5
-							f2_match = \
-							 match_index/10 - 5
-							return (True, \
-								f1_match,\
-								 f2_match)
-					else:	
-						# We're out of luck
-						j += 1
-						total_miss += 1
-						break
-			# We didn't reach 5 seconds of matches:
-			j +=1 
-		else:
-			# If no matches, move on and check for more
-			j += 1
-			total_miss += 1
-	return (False, None, None)	
+	# Initialize our return value to False
+	return_value = (False, None, None)
+	
+	# Initialize the max distance between hashes we will accept as a MATCH
+	thresh_distance = 500000000
+
+	# Initialize save flag as true
+	# save flag determines the start of a match, used to get match times
+	save_flag = True
+	
+	# Keep track of where we are in l1 and l2 with pointers
+	# Initialize to 0 because we start at the beginning of each list
+	l1_ptr = 0
+	l2_ptr = 0
+
+	# Initialize offsets to keep track of persistance of matches between chunks
+	offset_ptr = 0
+
+	# Check for matches of l1 to "first" chunk of l2
+	while (l1_ptr < len(l1)):
+
+		# If there is less than 5 seconds left in l1 then break out
+		if ((len(l1) - l1_ptr) < _NUMBER_MATCHES_NEEDED):
+			break
+		
+		# Check for matches of l2 to "first" chunk of l2
+		while (l2_ptr < len(l2)):
+
+			# If there is less than 5 sec left in l2 then break
+			if((len(l2) - l2_ptr) < _NUMBER_MATCHES_NEEDED):
+				break
+
+			# If the distance between hashes is within our threshold then..
+			if (abs(l1[l1_ptr] - l2[l2_ptr]) < thresh_distance):
+			
+				# Record where l1_pointer and l2_pointer are within l1 and l2
+				if(save_flag):
+					save_l1 = l1_ptr
+					save_l2 = l2_ptr
+					# Do not look to save upon match
+					save_flag = False
+
+				# increment offset_ptr
+				offset_ptr += 1
+				
+				#pdb.set_trace()
+				#print offset_ptr				
+
+				# if we have satisfied 5 seconds of matching..
+				if (offset_ptr >= _NUMBER_MATCHES_NEEDED):
+					
+					# set return_value, true and get times of saves
+					return_value = (True, \
+							ptr_to_time(save_l1),\
+							ptr_to_time(save_l2))
+			
+			# Else we have non-persistant matching, reset
+			elif(not save_flag):
+	
+				# Reset save flags to time 0
+				save_l1 = 0
+				save_l2 = 0
+				# Look to create save flags upon match
+				save_flag = True
+			
+			# Increment l2_ptr
+			l2_ptr += 1
+		
+		# Increment l1_ptr		
+		l1_ptr += 1
+	
+	return return_value
 
 def dir_breakdown(input_dir, respective_dict):
 	"""
@@ -357,7 +383,10 @@ def dir_breakdown(input_dir, respective_dict):
 def delete_HGMLtmp_dir():
 	os.system("rm -r /tmp/HGML/")
 
-#### End of Helper Functions ####
+
+#########################################################################
+###################### End of Helper Functions ##########################
+#########################################################################
 
 
 """Analyze the command line arguments.  Must be in form:
@@ -423,7 +452,7 @@ else:
 	good_file = check_type(data2)
         if good_file:
                 song_data = file_handler(good_file)
-                data1_dict[data2] = song_data
+                data2_dict[data2] = song_data
 
 	else:
                 # This file is not in a supported format
