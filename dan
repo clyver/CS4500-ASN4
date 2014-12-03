@@ -243,6 +243,9 @@ def check_sequence(l1, l2):
 	total_match = 0
 	total_miss = 0
 	#pdb.set_trace()
+	returnf1 = None
+	returnf2 = None
+	returnBool = False
 	print "limit", limit
 	while j < limit:
 		chunk_max = l1[j]	
@@ -273,10 +276,10 @@ def check_sequence(l1, l2):
 						f1_match = p/10 - 5
 						f2_match = match_index/10 - 5
 						print "total match: ", total_match,"total miss: ", total_miss
-						if total_miss == 0:
-							return (True,\
-						        	f1_match, f2_match)
-						
+						#return (True, f1_match, f2_match)
+						returnf1 = f1_match
+						returnf2 = f2_match
+						returnBool = True
 				else:
 					# We see if we have slips to use
 					if slip:
@@ -290,22 +293,30 @@ def check_sequence(l1, l2):
 							f2_match = \
 							 match_index/10 - 5
 							print "total match: ", total_match,"total miss: ", total_miss
-                                        	if total_miss == 0:        
-							return (True, \
-								f1_match, f2_match)
+							#return (True, f1_match, f2_match)
+							returnf1 = f1_match
+							returnf2 = f2_match
+							returnBool = True
 					else:	
 						# We're out of luck
 						j += 1
 						total_miss += 1
 						break
+
 			# We didn't reach 5 seconds of matches:
 			j +=1 
 		else:
 			# If no matches, move on and check for more
 			j += 1
 			total_miss += 1
-	print "total match: ", total_match,"total miss: ", total_miss
-	return (False, None, None)	
+	
+	if returnBool == False:
+		return (False, None, None)
+	if total_miss/total_match > .05:
+		return (False, None, None)
+	else:
+		return (True, returnf1, returnf2)
+		
 
 def dir_breakdown(input_dir, respective_dict):
 	"""
