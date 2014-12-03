@@ -124,8 +124,8 @@ def reduce_output(path):
 	Ensure we print out the correct file paths
 	In particular, if we have a converted file, "test.mp3.wav",
 	we want to return test.wav, disregarding that it was converted
-	""" 
-	if (".wav" and ".mp3" in path) or (".wav" and ".ogg" in path):
+	"""
+	if (".wav" in path and ".mp3" in path) or (".wav" in path and ".ogg" in path):
 		path = path[:-4]
 	return path
 		
@@ -316,7 +316,6 @@ def dir_breakdown(input_dir, respective_dict):
 
 	# Go through the dir's files and ensure all are either wav or mp3
         dir_files = os.listdir(input_dir)
-        
 	for f in dir_files:
                 # Check  to see if this file is a wav, convert if needed
 	
@@ -328,10 +327,13 @@ def dir_breakdown(input_dir, respective_dict):
                         	respective_dict[f] = song_data
                 	except:
                         	print >> sys.stderr,\
-			 	 "Error: {f}'s format\
+			 	 "ERROR: {f}'s format\
 					 is not supported".format(f=f)
 			 	sys.exit(1)
-
+		else:
+			print >> sys.stderr,\
+			"ERROR: {f}'s format is not supported".format(f=f)
+        		sys.exit(1)
 
 #  Remove /tmp/HGML/ that we created
 def delete_HGMLtmp_dir():
@@ -357,11 +359,11 @@ data2 = sys.argv[4]
 # Let's make sure the provided flags (-f|-d) match the corresponfing input
 if flag1 == "-d" and not os.path.isdir(data1):
 	print >> sys.stderr, \
-	 "Error: {arg} is not a directory".format(arg=data1)
+	 "ERROR: {arg} is not a directory".format(arg=data1)
 	sys.exit(1)
 if flag2 == "-d" and not os.path.isdir(data2):
 	print >> sys.stderr, \
-	 "Error: {arg} is not a directory".format(arg=data2)
+	 "ERROR: {arg} is not a directory".format(arg=data2)
         sys.exit(1)
 if flag1 == '-f' and not os.path.isfile(data1):
         print >> sys.stderr, \
@@ -394,7 +396,7 @@ else:
 	else:
 		# This file is not in a supported format
 		print >> sys.stderr,\
-                         "Error: {f}'s format is not supported".format(f=data1)
+                         "ERROR: {f}'s format is not supported".format(f=data1)
                 sys.exit(1)
 
 if data2_is_dir:
@@ -408,7 +410,7 @@ else:
 	else:
                 # This file is not in a supported format
                 print >> sys.stderr,\
-                         "Error: {f}'s format is not supported".format(f=data2)
+                         "ERROR: {f}'s format is not supported".format(f=data2)
                 sys.exit(1)
 
 # ***At this point we have our dicts filled with the data we'll be comparing 
