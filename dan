@@ -8,6 +8,7 @@ import pdb
 import numpy as np
 from scipy.io import wavfile
 from numpy.fft import fft
+
 """
 This is our dan file.  It is our second attempt at accomplishing our semester
 project.  In this script you will find command line argument handling, an
@@ -27,15 +28,12 @@ key: file_name, value: audio_data
 data1_dict = {}
 data2_dict = {}
 
-# Some helpers before we get down to business:
-# EDIT: There are actually a hella lot of helper funcs
+# *****Some helpers before we get down to business:*****
 
-
-# Takes a file name f and a string directory path
-# Returns true or false based on mp3 format or not
 def is_mp3(f, directory=""):
 	"""
-	Retturn True if this file is an mp3
+	Takes a file name f and a string directory path
+	Returns true or false based on mp3 format or not
 	"""
 	# Get the proper path
 	if directory:
@@ -56,17 +54,15 @@ def is_wav(f, directory=''):
 	Given this path, True if ends in .wav, and data reads as wav
 	If there is an input directory, update the path
 	"""
-        
+       
+	# Get the proper path 
 	if directory:
                 # Make sure we add a '/' if needed
                 f = directory + f if directory.endswith('/')\
                     else directory + '/' + f	
 
 	result = sndhdr.what(f)
-	if f.endswith('.wav') and 'wav' in result:
-                return True
-        else:
-                return False
+	return f.endswith('.wav') and 'wav' in result
 
 def ogg_to_wav(f, directory=""):
 	"""
@@ -80,19 +76,17 @@ def ogg_to_wav(f, directory=""):
                 f = directory + f if directory.endswith('/')\
 		    else directory + '/' + f
 
+	# Generate out paths correctly
 	just_file = short(f) + ".wav"
 	ogg_path = "/tmp/HGML/" + just_file
 	try:
 		os.system("oggdec --quiet -o {f1} {f2}"\
 			.format(f1=ogg_path, f2=f))
-		# Add this to the list of files we make
 		return ogg_path
 	except:
-		print >> sys.stderr, "{ogg} is not in a supported format".\
-			format(ogg=f)
+		print >> sys.stderr,\
+		 "{ogg} is not in a supported format".format(ogg=f)
 		sys.exit(1)
-
-
 
 def short(path):
 	"""
@@ -105,7 +99,7 @@ def short(path):
 
 def check_dir_files(directory):
 	"""
-	We want to ensure that there are no nested directories
+	We want to ensure that there are no nested directories in this dir
 	"""
 
 	dir_content = os.listdir(directory)
@@ -125,7 +119,8 @@ def reduce_output(path):
 	In particular, if we have a converted file, "test.mp3.wav",
 	we want to return test.wav, disregarding that it was converted
 	"""
-	if (".wav" in path and ".mp3" in path) or (".wav" in path and ".ogg" in path):
+	if (".wav" in path and ".mp3" in path) or\
+		 (".wav" in path and ".ogg" in path):
 		path = path[:-4]
 	return path
 		
@@ -146,6 +141,7 @@ def mp3_to_wav(f, directory=""):
 	mp3_path = "/tmp/HGML/" + just_file
 	
 	# Create this audio's wav file in the /tmp/ dir
+
 	os.system("/course/cs4500f14/bin/lame --decode --silent {file} \
 		 {new_name}".format(file=f, new_name=mp3_path))	
 	# Add this file to the list of files we've made so far	
@@ -154,29 +150,24 @@ def mp3_to_wav(f, directory=""):
 
 def file_handler(f, directory=""):
 	"""
-	Given a file, break it down into a cononical form and fetch the song data
+	Given a file, break it down into a cononical form
+	 and fetch the song data
 	"""	
 
 	# Normalize this file.  Chunk it up.  Call fft on chunks.  
 
 	if not "tmp" in f and directory:
                 # Make sure we add a '/' if needed
-                f = directory + f if directory.endswith('/') else directory + '/' + f
-	
-	# Check the validity of the path
-        """
-	if directory:
-                # Make sure we add a '/' if needed
                 f = directory + f if directory.endswith('/')\
-                    else directory + '/' + f
-	"""
-	# Instead of using wave.open use lame to standardize the .wav
+			 else directory + '/' + f
+	
 	# Standardize .wav file by converting to .mp3 then returning to .wav
 	mp3_path = "/tmp/HGML/" + short(f)
 	#print mp3_path
 	try:
-		os.system("/course/cs4500f14/bin/lame --silent --resample 44.1 -a {fl}\
-			{new_name}".format(fl=f, new_name=mp3_path+".mp3"))
+		os.system("/course/cs4500f14/bin/lame --silent\
+	 		--resample 44.1 -a {fl} {new_name}"\
+			.format(fl=f, new_name=mp3_path+".mp3"))
 	except:
 		print >> sys.stderr, "unsuccessful conversion in file_handler wav to mp3"
 		sys.exit(1)
