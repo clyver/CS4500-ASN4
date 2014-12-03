@@ -423,7 +423,7 @@ else:
 	good_file = check_type(data2)
         if good_file:
                 song_data = file_handler(good_file)
-                data1_dict[data2] = song_data
+                data2_dict[data2] = song_data
 
 	else:
                 # This file is not in a supported format
