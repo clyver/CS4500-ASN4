@@ -10,9 +10,9 @@ from scipy.io import wavfile
 from numpy.fft import fft
 
 """
-This is our dan file.  It is our second attempt at accomplishing our semester
-project.  In this script you will find command line argument handling, an
-audio comparator, along with the parsing of wav/mp3 audio files and directories
+This is our dan file. In this script you will find command line
+ argument handling, an audio comparator, along with the parsing
+  of wav/mp3 audio files and directories
 """
 
 # We may be making some files that we'll want put in tmp/HGML
@@ -85,7 +85,7 @@ def ogg_to_wav(f, directory=""):
 		return ogg_path
 	except:
 		print >> sys.stderr,\
-		 "{ogg} is not in a supported format".format(ogg=f)
+		 "ERROR: {ogg} is not in a supported format".format(ogg=f)
 		sys.exit(1)
 
 def short(path):
@@ -169,23 +169,26 @@ def file_handler(f, directory=""):
 	 		--resample 44.1 -a {fl} {new_name}"\
 			.format(fl=f, new_name=mp3_path+".mp3"))
 	except:
-		print >> sys.stderr, "unsuccessful conversion in file_handler wav to mp3"
+		print >> sys.stderr,\
+		 "ERROR: Unsuccessful conversion in file_handler wav to mp3"
 		sys.exit(1)
 
 	try:
 		os.system("/course/cs4500f14/bin/lame --silent --decode {f1} \
 		{fname}".format(f1=mp3_path+".mp3", fname=mp3_path))
 	except:
-		print >> sys.stderr, "unsuccessful conversion in file_handler mp3_to_wav"	
+		print >> sys.stderr,\
+		 "ERROR: Unsuccessful conversion in file_handler mp3_to_wav"	
+		sys.exit(1)
 
 	# Get the data out of the file we just normalized
 	f_sample_rate, f_wav_data = wavfile.read(mp3_path)
 	# Chunk it up into sub lists of len 4096 (fft likes base 2)
 	f_chunked = list(zip(*[iter(f_wav_data)]*4096))
 
-	# fft_bands is a list of lists, where each sublist represents 1/10 of a second
-        # in the time domain and contains 8 numbers which are the sums across 8 
-        # frequency bins for that time of fft
+	# fft_bands is a list of lists, where each  sublist represents
+	# 1/10 of a second in the time domain and contains 8 numbers 
+	# which are the sums across 8 frequency bins for that time of fft
         fft_bands = []
         for chunk in f_chunked:
                 fft_chunk = fft(chunk)
@@ -211,16 +214,23 @@ def file_handler(f, directory=""):
                 index6 = sublist[6]*17/smaller
                 index7 = sublist[7]*19/smaller
 
-                total = index0 + index1 + index2 + index3 + index4 + index5 + index6 + index7
+                total = index0 + index1 + index2 + index3 + index4\
+			 + index5 + index6 + index7
                 list_of_hashes.append(total)
 
         return list_of_hashes
 
 
 def check_type(f, directory=""):
+	"""
+	Return the path to the file if it is in good format, else False
+	"""
+
+	# Some flags
 	ogg = False
         mp3 = False
         wav = False
+
         if is_ogg(f):
                 ogg = True
                 f = ogg_to_wav(f, directory)
@@ -328,15 +338,15 @@ def dir_breakdown(input_dir, respective_dict):
 
 	# Make sure this directory contains only files
 	if not check_dir_files(input_dir):
-		print >> sys.stderr, "ERROR: {dir} has a nested directory" \
-					.format(dir=input_dir)
+		print >> sys.stderr, \
+		 "ERROR: {dir} has a nested directory".format(dir=input_dir)
 		sys.exit(1)
 
 	# Go through the dir's files and ensure all are either wav or mp3
         dir_files = os.listdir(input_dir)
 	for f in dir_files:
-                # Check  to see if this file is a wav, convert if needed
-	
+                
+		# Check  to see if this file is a wav, convert if needed
 		good_file = check_type(f, input_dir)	
         	
 		if good_file:        
@@ -350,7 +360,7 @@ def dir_breakdown(input_dir, respective_dict):
 			 	sys.exit(1)
 		else:
 			print >> sys.stderr,\
-			"ERROR: {f}'s format is not supported".format(f=f)
+			 "ERROR: {f}'s format is not supported".format(f=f)
         		sys.exit(1)
 
 #  Remove /tmp/HGML/ that we created
@@ -366,7 +376,7 @@ def delete_HGMLtmp_dir():
 if len(sys.argv) != 5 or \
    (sys.argv[1] != '-f' and sys.argv[1] != '-d') or \
    (sys.argv[3] != '-f' and sys.argv[3] != '-d'):
-        print >>sys.stderr, "ERROR: incorrect command line."
+        print >> sys.stderr, "ERROR: Incorrect command line"
         sys.exit(1)
 # We've done a basic analysis of our input. Set our inputs to a variables
 flag1 = sys.argv[1]
@@ -414,7 +424,7 @@ else:
 	else:
 		# This file is not in a supported format
 		print >> sys.stderr,\
-                         "ERROR: {f}'s format is not supported".format(f=data1)
+                      "ERROR: {f}'s format is not supported".format(f=data1)
                 sys.exit(1)
 
 if data2_is_dir:
@@ -428,7 +438,7 @@ else:
 	else:
                 # This file is not in a supported format
                 print >> sys.stderr,\
-                         "ERROR: {f}'s format is not supported".format(f=data2)
+                      "ERROR: {f}'s format is not supported".format(f=data2)
                 sys.exit(1)
 
 # ***At this point we have our dicts filled with the data we'll be comparing 
@@ -452,6 +462,7 @@ found_so_far = []
 for key1 in data1_keys:
 	for key2 in data2_keys:
 		pair = set((key1, key2))
+		# If this pair is novel, compare them
 		if pair not in found_so_far: 
 			data1_value = data1_dict[key1]
 			data2_value = data2_dict[key2]
