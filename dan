@@ -243,6 +243,7 @@ def check_sequence(l1, l2):
 	total_match = 0
 	total_miss = 0
 	#pdb.set_trace()
+	print "limit", limit
 	while j < limit:
 		chunk_max = l1[j]	
 		# See if there is a match in the other list, else -1
@@ -272,8 +273,10 @@ def check_sequence(l1, l2):
 						f1_match = p/10 - 5
 						f2_match = match_index/10 - 5
 						print "total match: ", total_match,"total miss: ", total_miss
-						return (True,\
-						         f1_match, f2_match)
+						if total_miss == 0:
+							return (True,\
+						        	f1_match, f2_match)
+						
 				else:
 					# We see if we have slips to use
 					if slip:
@@ -287,8 +290,9 @@ def check_sequence(l1, l2):
 							f2_match = \
 							 match_index/10 - 5
 							print "total match: ", total_match,"total miss: ", total_miss
-                                                	return (True, \
-							 f1_match, f2_match)
+                                        	if total_miss == 0:        
+							return (True, \
+								f1_match, f2_match)
 					else:	
 						# We're out of luck
 						j += 1
