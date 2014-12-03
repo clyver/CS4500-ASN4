@@ -177,18 +177,12 @@ def file_handler(f, directory=""):
         for chunk in f_chunked:
                 fft_chunk = fft(chunk)
                 abs_val = np.abs(fft_chunk)**2
-                #freqs = fft_chunk.fftfreq(len(fft_chunk))
-                #chunk_max = np.max(fft_chunk)
-                #chunk_max = np.amax(freqs)
                 band = list(zip(*[iter(abs_val)]*512))
                 sums = []
                 for ban in band:
                         sum_of_one_band = np.sum(ban)
                         sums.append(sum_of_one_band)
                 fft_bands.append(sums)
-
-        print fft_bands[0]
-	print fft_bands[1]
 
         # List of hashes for each 1/10 of second. calculated by
         # multiplying each of 8 
@@ -207,12 +201,7 @@ def file_handler(f, directory=""):
         	total = index0 + index1 + index2 + index3 + index4 + index5 + index6 + index7
         	list_of_hashes.append(total)
         	
-	print total
-	print "len of list of hashes", len(list_of_hashes)
-	
         return list_of_hashes
-
-
 
 def get_match_index(max1, l2):
 	# Check if this max is present in l2, if so return the index in l2
@@ -242,8 +231,6 @@ def check_sequence(l1, l2):
 	limit = f1_len-50
 	total_match = 0
 	total_miss = 0
-	#pdb.set_trace()
-	print "limit", limit
 	while j < limit:
 		chunk_max = l1[j]	
 		# See if there is a match in the other list, else -1
@@ -272,11 +259,8 @@ def check_sequence(l1, l2):
 						# Determine when match occured
 						f1_match = p/10 - 5
 						f2_match = match_index/10 - 5
-						print "total match: ", total_match,"total miss: ", total_miss
-						if total_miss == 0:
-							return (True,\
-						        	f1_match, f2_match)
-						
+						return (True,\
+						 f1_match, f2_match)
 				else:
 					# We see if we have slips to use
 					if slip:
@@ -289,10 +273,9 @@ def check_sequence(l1, l2):
 							f1_match = p/10 - 5
 							f2_match = \
 							 match_index/10 - 5
-							print "total match: ", total_match,"total miss: ", total_miss
-                                        	if total_miss == 0:        
 							return (True, \
-								f1_match, f2_match)
+								f1_match,\
+								 f2_match)
 					else:	
 						# We're out of luck
 						j += 1
@@ -304,7 +287,6 @@ def check_sequence(l1, l2):
 			# If no matches, move on and check for more
 			j += 1
 			total_miss += 1
-	print "total match: ", total_match,"total miss: ", total_miss
 	return (False, None, None)	
 
 def dir_breakdown(input_dir, respective_dict):
