@@ -48,10 +48,10 @@ def is_mp3(f, directory=""):
 
 	result = sndhdr.what(f)
 	return_bool = "mp3" in result and f.endswith(".mp3")
-	#print "is_mp3"
-	#print f
-	#print return_bool
-	#print "==========="
+	print "is_mp3"
+	print f
+	print return_bool
+	print "==========="
 	# MP3s should not return a result. We alse want '.mp3' on the end 
 	return return_bool
 
@@ -246,31 +246,16 @@ def check_type(f, directory=""):
         if any((ogg, mp3, wav)):
 		return f
 	else:
-		False
-
-def get_match_index(max1, l2):
-	# Check if this max is present in l2, if so return the index in l2
-	i = 0
-	while i < len(l2):
-		if abs(max1 - l2[i]) < 2000000:
-			return i
-		else:
-			i += 1
-	return -1
+		return False
 
 
-def matches(p1, p2, threshold):
-	# We determine if these two points are close enough, as per threshold
-	return abs(p1 - p2) <= threshold
-
-
-"""
-	This is a helper function to check_sequence.
-	Takes a save_ptr of a list of chunks and
-	returns the time in seconds where the save_ptr
-	resides assuming that chunks are 0.1 seconds long
-"""
 def ptr_to_time(sp):
+	"""
+		This is a helper function to check_sequence.
+		Takes a save_ptr of a list of chunks and
+		returns the time in seconds where the save_ptr
+		resides assuming that chunks are 0.1 seconds long
+	"""
 	return sp * 0.1
 
 
@@ -375,10 +360,11 @@ def dir_breakdown(input_dir, respective_dict):
         dir_files = os.listdir(input_dir)
 	for f in dir_files:
                 # Check  to see if this file is a wav, convert if needed
-	
+		print f	
 		good_file = check_type(f, input_dir)	
         	
-		if good_file:        
+		if good_file:
+			print good_file        
 			try:
                         	song_data = file_handler(good_file, input_dir)
                         	respective_dict[f] = song_data
