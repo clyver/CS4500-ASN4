@@ -394,7 +394,7 @@ else:
 	else:
 		# This file is not in a supported format
 		print >> sys.stderr,\
-                         "Error: {f}'s format is not supported".format(f=f)
+                         "Error: {f}'s format is not supported".format(f=data1)
                 sys.exit(1)
 
 if data2_is_dir:
@@ -408,7 +408,7 @@ else:
 	else:
                 # This file is not in a supported format
                 print >> sys.stderr,\
-                         "Error: {f}'s format is not supported".format(f=f)
+                         "Error: {f}'s format is not supported".format(f=data2)
                 sys.exit(1)
 
 # ***At this point we have our dicts filled with the data we'll be comparing 
