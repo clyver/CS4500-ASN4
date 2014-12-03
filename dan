@@ -12,6 +12,7 @@ from numpy.fft import fft
 
 # Global Constants
 _NUMBER_MATCHES_NEEDED = 50
+_TEMP_DIR_PATH = "/tmp/HGML22"
 
 """
 This is our dan file.  It is our second attempt at accomplishing our semester
@@ -22,8 +23,8 @@ audio comparator, along with the parsing of wav/mp3 audio files and directories
 # We may be making some files that we'll want put in tmp/HGML
 # H.G.M.L Stands for Hsie, Georgescu, Manser, Lyver, the last names of the devs
 # This is funny because it sounds like HTML
-if not os.path.exists("/tmp/HGML"):
-	os.makedirs("/tmp/HGML")
+if not os.path.exists(_TEMP_DIR_PATH):
+	os.makedirs(_TEMP_DIR_PATH)
 
 """
 We're going to create a dictionary for each data input
@@ -82,7 +83,7 @@ def ogg_to_wav(f, directory=""):
 
 	# Generate out paths correctly
 	just_file = short(f) + ".wav"
-	ogg_path = "/tmp/HGML/" + just_file
+	ogg_path = _TEMP_DIR_PATH + "/" + just_file
 	try:
 		os.system("oggdec --quiet -o {f1} {f2}"\
 			.format(f1=ogg_path, f2=f))
@@ -142,7 +143,7 @@ def mp3_to_wav(f, directory=""):
 			 else directory + '/' + f
 	
 	just_file = short(f) + ".wav"
-	mp3_path = "/tmp/HGML/" + just_file
+	mp3_path = _TEMP_DIR_PATH + "/" + just_file
 	
 	# Create this audio's wav file in the /tmp/ dir
 
@@ -165,7 +166,7 @@ def file_handler(f, directory=""):
 			 else directory + '/' + f
 	
 	# Standardize .wav file by converting to .mp3 then returning to .wav
-	mp3_path = "/tmp/HGML/" + short(f)
+	mp3_path = _TEMP_DIR_PATH + "/" + short(f)
 	#print mp3_path
 	try:
 		os.system("/course/cs4500f14/bin/lame --silent\
@@ -381,7 +382,7 @@ def dir_breakdown(input_dir, respective_dict):
 
 #  Remove /tmp/HGML/ that we created
 def delete_HGMLtmp_dir():
-	os.system("rm -r /tmp/HGML/")
+	os.system("rm -r {tmpdir}".format(tmpdir=_TEMP_DIR_PATH))
 
 
 #########################################################################
