@@ -50,9 +50,9 @@ def is_mp3(f, directory=""):
 	# MP3s should not return a result. We alse want '.mp3' on the end 
 	return not result and f.endswith(".mp3")
 
-def is_ogg(file):
+def is_ogg(f):
 	# Return True if this file has the .ogg file tag
-	return file.endswith(".ogg")
+	return f.endswith(".ogg")
 
 def is_wav(f, directory=''):
 	"""
@@ -278,7 +278,7 @@ def check_sequence(l1, l2):
 	return_value = (False, None, None)
 	
 	# Initialize the max distance between hashes we will accept as a MATCH
-	thresh_distance = 500000000
+	thresh_distance = 980000000
 
 	# Initialize save flag as true
 	# save flag determines the start of a match, used to get match times
@@ -338,6 +338,8 @@ def check_sequence(l1, l2):
 				save_l2 = 0
 				# Look to create save flags upon match
 				save_flag = True
+				# Reset offset_ptr to 0
+				offset_ptr = 0
 			
 			# Increment l2_ptr
 			l2_ptr += 1
