@@ -34,6 +34,10 @@ data2_dict = {}
 # Takes a file name f and a string directory path
 # Returns true or false based on mp3 format or not
 def is_mp3(f, directory=""):
+	"""
+	Retturn True if this file is an mp3
+	"""
+	# Get the proper path
 	if directory:
                 # Make sure we add a '/' if needed
                 f = directory + f if directory.endswith('/')\
@@ -47,7 +51,7 @@ def is_ogg(file):
 	# Return True if this file has the .ogg file tag
 	return file.endswith(".ogg")
 
-def is_wav(file_path, directory=''):
+def is_wav(f, directory=''):
 	"""
 	Given this path, True if ends in .wav, and data reads as wav
 	If there is an input directory, update the path
@@ -58,8 +62,8 @@ def is_wav(file_path, directory=''):
                 f = directory + f if directory.endswith('/')\
                     else directory + '/' + f	
 
-	result = sndhdr.what(file_path)
-	if file_path.endswith('.wav') and 'wav' in result:
+	result = sndhdr.what(f)
+	if f.endswith('.wav') and 'wav' in result:
                 return True
         else:
                 return False
@@ -77,8 +81,7 @@ def ogg_to_wav(f, directory=""):
 		    else directory + '/' + f
 
 	just_file = short(f) + ".wav"
-	ogg_path = "/tmp/" + just_file
-
+	ogg_path = "/tmp/HGML/" + just_file
 	try:
 		os.system("oggdec --quiet -o {f1} {f2}"\
 			.format(f1=ogg_path, f2=f))
@@ -155,7 +158,7 @@ def file_handler(f, directory=""):
 	"""	
 
 	# Normalize this file.  Chunk it up.  Call fft on chunks.  
-	
+
 	if not "tmp" in f and directory:
                 # Make sure we add a '/' if needed
                 f = directory + f if directory.endswith('/') else directory + '/' + f
@@ -207,11 +210,11 @@ def check_type(f, directory=""):
         wav = False
         if is_ogg(f):
                 ogg = True
-                f = ogg_to_wav(f)
-        elif is_mp3(f):
+                f = ogg_to_wav(f, directory)
+        elif is_mp3(f, directory):
                 mp3 = True
-                f = mp3_to_wav(f)
-        elif is_wav(f):
+                f = mp3_to_wav(f, directory)
+        elif is_wav(f, directory):
                 wav = True
         if any((ogg, mp3, wav)):
 		return f
@@ -316,21 +319,18 @@ def dir_breakdown(input_dir, respective_dict):
         
 	for f in dir_files:
                 # Check  to see if this file is a wav, convert if needed
-		
-
-		if is_ogg(f):
-			f = ogg_to_wav(f, input_dir)
-
-                elif is_mp3(f, input_dir):
-                        # Call lame
-                        f = mp3_to_wav(f, input_dir)
-                try:
-                        song_data = file_handler(f, input_dir)
-                        respective_dict[f] = song_data
-                except:
-                        print >> sys.stderr,\
-			 "Error: {f}'s format is not supported".format(f=f)
-			sys.exit(1)
+	
+		good_file = check_type(f, input_dir)	
+        	
+		if good_file:        
+			try:
+                        	song_data = file_handler(good_file, input_dir)
+                        	respective_dict[f] = song_data
+                	except:
+                        	print >> sys.stderr,\
+			 	 "Error: {f}'s format\
+					 is not supported".format(f=f)
+			 	sys.exit(1)
 
 
 #  Remove /tmp/HGML/ that we created
