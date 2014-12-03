@@ -8,7 +8,7 @@ import pdb
 import numpy as np
 from scipy.io import wavfile
 from numpy.fft import fft
-
+import atexit
 
 # Global Constants
 _NUMBER_MATCHES_NEEDED = 50
@@ -47,8 +47,13 @@ def is_mp3(f, directory=""):
 		    else directory + '/' + f
 
 	result = sndhdr.what(f)
+	return_bool = "mp3" in result and f.endswith(".mp3")
+	#print "is_mp3"
+	#print f
+	#print return_bool
+	#print "==========="
 	# MP3s should not return a result. We alse want '.mp3' on the end 
-	return not result and f.endswith(".mp3")
+	return return_bool
 
 def is_ogg(f):
 	# Return True if this file has the .ogg file tag
@@ -67,7 +72,12 @@ def is_wav(f, directory=''):
                     else directory + '/' + f	
 
 	result = sndhdr.what(f)
-	return f.endswith('.wav') and 'wav' in result
+	return_bool = "wav" in result and f.endswith(".wav")
+	#print "is_wav"
+	#print f
+	#print return_bool
+	#print "==========="
+	return return_bool
 
 def ogg_to_wav(f, directory=""):
 	"""
@@ -374,15 +384,16 @@ def dir_breakdown(input_dir, respective_dict):
                         	respective_dict[f] = song_data
                 	except:
                         	print >> sys.stderr,\
-			 	 "ERROR: {f}'s format\
-					 is not supported".format(f=f)
+			 	 "ERROR: {f}'s format is not supported"\
+				.format(f=f)
 			 	sys.exit(1)
 		else:
 			print >> sys.stderr,\
 			"ERROR: {f}'s format is not supported".format(f=f)
         		sys.exit(1)
 
-#  Remove /tmp/HGML/ that we created
+#  Remove /tmp/HGML/ that we created at exit
+@atexit.register
 def delete_HGMLtmp_dir():
 	os.system("rm -r {tmpdir}".format(tmpdir=_TEMP_DIR_PATH))
 
@@ -390,7 +401,6 @@ def delete_HGMLtmp_dir():
 #########################################################################
 ###################### End of Helper Functions ##########################
 #########################################################################
-
 
 """Analyze the command line arguments.  Must be in form:
 	./dan <-f|-d> <file|dir> <-f|-d> <file|dir>
@@ -495,9 +505,6 @@ for key1 in data1_keys:
 				 reduce_output(short(key2)), \
 				 compare_vals[1], compare_vals[2]
 				found_so_far.append(pair) 
-
-# remove /tmp/HGML/
-delete_HGMLtmp_dir()
 
 # Exit with an exit code of 0
 sys.exit(0)
