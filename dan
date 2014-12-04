@@ -9,6 +9,7 @@ import numpy as np
 from scipy.io import wavfile
 from numpy.fft import fft
 import atexit
+from mutagen.mp3 import MP3
 
 # Global Constants
 _NUMBER_MATCHES_NEEDED = 50
@@ -46,12 +47,22 @@ def is_mp3(f, directory=""):
                 f = directory + f if directory.endswith('/')\
 		    else directory + '/' + f
 
-	result = sndhdr.what(f)
-	return_bool = "mp3" in result and f.endswith(".mp3")
-	print "is_mp3"
-	print f
-	print return_bool
-	print "==========="
+	try:
+		format_mp3 = MP3(f)
+	except:
+		print >> sys.stderr, "ERROR: Corrupt mp3 file {f1}"\
+		.format(f1=f)
+		sys.exit(1)
+
+	# Check for Layer 3 and make sure data is not "sketchy"
+	if (format_mp3.info.layer == 3 and not format_mp3.info.sketchy):
+		return_bool = True
+	else:
+		return_bool = False
+	#print "is_mp3"
+	#print f
+	#print return_bool
+	#print "==========="
 	# MP3s should not return a result. We alse want '.mp3' on the end 
 	return return_bool
 
@@ -183,23 +194,25 @@ def file_handler(f, directory=""):
 	 		--resample 44.1 -a {fl} {new_name}"\
 			.format(fl=f, new_name=mp3_path+".mp3"))
 	except:
-		print >> sys.stderr, "unsuccessful conversion in file_handler wav to mp3"
+		print >> sys.stderr, \
+		"unsuccessful conversion in file_handler wav to mp3"
 		sys.exit(1)
 
 	try:
 		os.system("/course/cs4500f14/bin/lame --silent --decode {f1} \
 		{fname}".format(f1=mp3_path+".mp3", fname=mp3_path))
 	except:
-		print >> sys.stderr, "unsuccessful conversion in file_handler mp3_to_wav"	
+		print >> sys.stderr, \
+		"unsuccessful conversion in file_handler mp3_to_wav"	
 
 	# Get the data out of the file we just normalized
 	f_sample_rate, f_wav_data = wavfile.read(mp3_path)
 	# Chunk it up into sub lists of len 4096 (fft likes base 2)
 	f_chunked = list(zip(*[iter(f_wav_data)]*4096))
 
-	# fft_bands is a list of lists, where each sublist represents 1/10 of a second
-        # in the time domain and contains 8 numbers which are the sums across 8 
-        # frequency bins for that time of fft
+	# fft_bands is a list of lists, where each sublist represents 1/10 
+	# of a second in the time domain and contains 8 numbers which are the 
+	# sums across 8 frequency bins for that time of fft
         fft_bands = []
         for chunk in f_chunked:
                 fft_chunk = fft(chunk)
@@ -225,12 +238,17 @@ def file_handler(f, directory=""):
                 index6 = (sublist[6]*1087)/smaller
                 index7 = (sublist[7]*1297)/smaller
 
-                total = index0 + index1 + index2 + index3 + index4 + index5 + index6 + index7
+                total = index0 + index1 + index2 + index3 + \
+			index4 + index5 + index6 + index7
                 list_of_hashes.append(total)
 
         return list_of_hashes
 
-
+# check_type returns either a filename or the boolean False
+# given a filename f and optional directory directory.
+# if check_type cannot verify that f is of type ogg mp3 or wav
+# then it returns false.
+# Else, we have a correct file type, and f is returned as a string
 def check_type(f, directory=""):
 	ogg = False
         mp3 = False
@@ -261,8 +279,8 @@ def ptr_to_time(sp):
 
 def check_sequence(l1, l2):
 	"""
-	Given two lists of hashes, where index of each list represents 1/10th second
-	of song data, and hash represents fingerprint
+	Given two lists of hashes, where index of each list represents 1/10th 
+	second of song data, and hash represents fingerprint
 	Return a tuple of (BOOLEAN, NUMBER, NUMBER) where bool is true if match
 	of 5 seconds of song is found between l1 and l2, false if no match.
 	if match, first number is where in seconds the match starts in l1
@@ -284,7 +302,8 @@ def check_sequence(l1, l2):
 	l1_ptr = 0
 	l2_ptr = 0
 
-	# Initialize offsets to keep track of persistance of matches between chunks
+	# Initialize offsets to keep track of persistance 
+	# of matches between chunks
 	offset_ptr = 0
 
 	# Check for matches of l1 to "first" chunk of l2
@@ -301,10 +320,12 @@ def check_sequence(l1, l2):
 			if((len(l2) - l2_ptr) < _NUMBER_MATCHES_NEEDED):
 				break
 
-			# If the distance between hashes is within our threshold then..
+			# If the distance between hashes is within our 
+			# threshold then..
 			if (abs(l1[l1_ptr] - l2[l2_ptr]) < thresh_distance):
 			
-				# Record where l1_pointer and l2_pointer are within l1 and l2
+				# Record where l1_pointer and l2_pointer are 
+				# within l1 and l2
 				if(save_flag):
 					save_l1 = l1_ptr
 					save_l2 = l2_ptr
@@ -320,7 +341,8 @@ def check_sequence(l1, l2):
 				# if we have satisfied 5 seconds of matching..
 				if (offset_ptr >= _NUMBER_MATCHES_NEEDED):
 					
-					# set return_value, true and get times of saves
+					# set return_value, true and 
+					# get times of saves
 					return_value = (True, \
 							ptr_to_time(save_l1),\
 							ptr_to_time(save_l2))
@@ -359,12 +381,10 @@ def dir_breakdown(input_dir, respective_dict):
 	# Go through the dir's files and ensure all are either wav or mp3
         dir_files = os.listdir(input_dir)
 	for f in dir_files:
-                # Check  to see if this file is a wav, convert if needed
-		print f	
+                # Check  to see if this file is a wav, convert if needed	
 		good_file = check_type(f, input_dir)	
         	
 		if good_file:
-			print good_file        
 			try:
                         	song_data = file_handler(good_file, input_dir)
                         	respective_dict[f] = song_data
